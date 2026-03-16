@@ -1,0 +1,292 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+//🟡 商品
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String
+  imgUrl      String[]
+  sku         String
+  brand       String?
+  price       Int
+  stock       Int
+
+  hasVariants Boolean          @default(false) // 是否有變體
+  variants    ProductVariant[] // 商品變體
+
+  isOnSale           Boolean @default(false)
+  discountPercentage Float?
+
+  productCollections ProductCollection[]
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@map("Product")
+}
+
+// 商品變體模型
+
+model ProductVariant {
+  id        String  @id @default(uuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  // 規格1 (主要規格，如顏色)
+  spec1Name         String // 規格1名稱，如 "顏色"
+  spec1Value        String // 規格1值，如 "白色"
+  spec1Image        String? // 規格1對應的圖片
+  // 當沒有規格2時，價格、SKU、庫存直接綁定在此層級
+  price             Int? // 此變體的價格 (當沒有spec2時使用)
+  stock             Int? // 此變體的庫存 (當沒有spec2時使用)
+  sku               String? // 此變體的SKU (當沒有spec2時使用)
+  // 規格2組合 (次要規格，如尺寸)
+  spec2Combinations ProductVariantSpec2[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 同一商品的規格1值不能重複
+  @@unique([productId, spec1Value])
+  @@map("ProductVariant")
+}
+
+// 規格2組合模型 (尺寸等)
+
+model ProductVariantSpec2 {
+  id        String         @id @default(uuid())
+  variantId String
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  spec2Name  String // 規格2名稱，如 "尺寸"
+  spec2Value String // 規格2值，如 "S", "M", "L"
+
+  // 價格和庫存
+  price Int? // 此組合的價格 (NT$)
+  stock Int? // 此組合的庫存數量
+  sku   String? // 此組合的SKU (可選)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // 同一變體的規格2值不能重複
+  @@unique([variantId, spec2Value])
+  @@map("ProductVariantSpec2")
+}
+
+model Collection {
+  id                 String              @id @default(uuid())
+  name               String
+  slug               String              @unique
+  image              String?
+  description        String?
+  productCollections ProductCollection[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Collection")
+}
+
+model ProductCollection {
+  id           String     @id @default(uuid())
+  product      Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId    String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  collectionId String
+
+  createdAt DateTime @default(now())
+
+  @@index([productId])
+  @@index([collectionId])
+  @@map("ProductCollection")
+}
+
+model Category {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  products Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("Category")
+}
+
+//🟡 用戶
+enum Role {
+  User
+  Admin
+}
+model User {
+  id               String    @id @map("_id")
+  name             String
+  email            String
+  emailVerified    Boolean   @default(false)
+  role             Role      @default(User)
+  image            String?
+  createdAt        DateTime
+  updatedAt        DateTime
+  sessions         Session[]
+  accounts         Account[]
+  orders           Order[]
+  Profile          Profile?
+  stripeCustomerId String?
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Profile {
+  id          String    @id @default(uuid())
+  userId      String    @unique
+  email       String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String?
+  phoneNumber String?
+  gender      String?
+  birthday    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  Address     Address[]
+
+  @@map("profile")
+}
+
+model Address {
+  id        String  @id @default(uuid())
+  profileId String
+  profile   Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  recipientName String // 收件人姓名
+  phoneNumber   String // 收件人電話
+  zipCode       String // 郵遞區號，例如 100
+  county        String // 縣市，例如 台北市
+  district      String // 行政區，例如 中正區
+  streetAddress String // 收件地址
+
+  isDefault Boolean  @default(false) // 可選：是否為預設地址
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("address")
+}
+
+model Session {
+  id        String   @id @map("_id")
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id @map("_id")
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id @map("_id")
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+//🟡 訂單
+model Order {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  name            String
+  phoneNumber     String
+  address         String
+  notes           String?
+  gender          String   @default("")
+  totalItems      Int
+  totalPrice      Int
+  paymentMethod   String
+  paymentStatus   String   @default("UNPAID")
+  status          String   @default("PENDING")
+  stripeSessionId String?  @unique
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  orderItems OrderItem[]
+  User       User        @relation(fields: [userId], references: [id])
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id           String   @id @default(uuid())
+  orderId      String
+  productId    String
+  productName  String
+  productImage String
+  price        Int
+  quantity     Int
+  variantText  String?
+  variantId    String? // 商品變體 ID
+  spec2Id      String? // 規格2 ID
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@map("order_items")
+}
+
+// 如果你想要更清楚的狀態管理，可以使用 enum：
+enum PaymentStatus {
+  UNPAID // 未付款（貨到付款）
+  PENDING // 付款處理中
+  PAID // 已付款
+  FAILED // 付款失敗
+  REFUNDED // 已退款
+}
+
+enum OrderStatus {
+  PENDING // 等待確認
+  PENDING_PAYMENT // 等待付款
+  CONFIRMED // 已確認
+  PROCESSING // 處理中
+  SHIPPED // 已出貨
+  DELIVERED // 已送達
+  CANCELLED // 已取消
+  REFUNDED // 已退款
+}

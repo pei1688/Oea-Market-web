@@ -129,7 +129,12 @@ const CategoryProductsContent = ({
         {/* 右側商品區域 */}
         <div className="flex-1">
           {/* 商品內容 */}
-          <ProductGrid products={products} isPending={isLoading} />
+          <ProductGrid
+            products={products}
+            isPending={isLoading}
+            collectionId={collectionId}
+            categorySlug={categorySlug}
+          />
 
           {/* 無限滾動觸發器 */}
           <div ref={loadMoreRef} className="flex justify-center py-8">

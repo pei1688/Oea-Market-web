@@ -9,6 +9,8 @@ import { calculateDiscountedPrice } from "@/lib/price";
 interface ProductItemProps {
   product: ProductListItem;
   priority?: boolean;
+  collectionId?: string;
+  categorySlug?: string;
 }
 
 const ProductDialogItem = dynamic(
@@ -21,12 +23,18 @@ const ProductDialogItem = dynamic(
   },
 );
 
-const ProductItem = memo(({ product, priority = false }: ProductItemProps) => {
+const ProductItem = memo(({ product, priority = false, collectionId, categorySlug }: ProductItemProps) => {
   const discountInfo = calculateDiscountedPrice(
     product.price,
     product.isOnSale,
     product.discountPercentage,
   );
+
+  const href =
+    collectionId && categorySlug
+      ? `/collections/${collectionId}/${categorySlug}/product/${product.id}`
+      : `/product/${product.id}`;
+
   return (
     <div className="relative aspect-3/4 w-full rounded-sm border bg-neutral-100 transition-all duration-300 hover:border-fuchsia-500 hover:shadow-lg">
       {/* Sale badge */}
@@ -36,7 +44,7 @@ const ProductItem = memo(({ product, priority = false }: ProductItemProps) => {
         </div>
       )}
 
-      <Link href={`/product/${product.id}`} className="flex h-full flex-col">
+      <Link href={href} className="flex h-full flex-col">
         <div className="relative h-[80%] w-full">
           <Image
             src={product.imgUrl?.[0] || "/default-product.png"}

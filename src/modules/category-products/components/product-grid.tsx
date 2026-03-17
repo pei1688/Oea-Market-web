@@ -6,9 +6,11 @@ import { ProductListItem } from "@/types/product/product";
 interface ProductGridProps {
   products: ProductListItem[];
   isPending: boolean;
+  collectionId?: string;
+  categorySlug?: string;
 }
 
-const ProductGrid = ({ products, isPending }: ProductGridProps) => {
+const ProductGrid = ({ products, isPending, collectionId, categorySlug }: ProductGridProps) => {
   if (isPending) {
     return <ProductSkeleton />;
   }
@@ -24,7 +26,12 @@ const ProductGrid = ({ products, isPending }: ProductGridProps) => {
   return (
     <div className="grid grid-cols-2 gap-4 transition-all duration-300 md:grid-cols-3 lg:grid-cols-4">
       {products.map((product) => (
-        <ProductItem product={product} key={product.id} />
+        <ProductItem
+          product={product}
+          key={product.id}
+          collectionId={collectionId}
+          categorySlug={categorySlug}
+        />
       ))}
     </div>
   );

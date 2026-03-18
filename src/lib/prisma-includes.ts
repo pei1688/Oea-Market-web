@@ -1,7 +1,6 @@
 import { Prisma } from "@prisma/client";
 
 export const productInclude = {
-  discountPercentage: true,
   category: true,
   variants: {
     include: {
@@ -16,4 +15,4 @@ export const productInclude = {
       },
     },
   },
-} as unknown as Prisma.ProductInclude;
+} as const satisfies Prisma.ProductInclude;

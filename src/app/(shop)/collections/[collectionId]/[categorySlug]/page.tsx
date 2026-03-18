@@ -1,10 +1,10 @@
-import { getCollections } from "@/action/collection";
+import { getCollectionById, getCollections } from "@/action/collection";
 import { getFilteredProductsByCollection } from "@/action/product";
 import PageBreadcrumb from "@/components/layout/page-breadcrumb";
 import Spinner from "@/components/spinner";
-import ProductSkeleton from "@/modules/category-products/ui/product-skeleton";
 import CategoryProductsContent from "@/modules/category-products/ui/view/category-products-content";
 import { Suspense } from "react";
+import { type Metadata } from "next";
 export const revalidate = 300;
 
 export async function generateStaticParams() {
@@ -31,6 +31,25 @@ interface Props {
   params: Promise<{ collectionId: string; categorySlug: string }>;
 }
 
+export async function generateMetadata({
+  params,
+}: Props): Promise<Metadata> {
+  const { collectionId } = await params;
+  const collection = await getCollectionById(collectionId);
+  const name = collection?.name ?? "商品系列";
+  return {
+    title: name,
+    description: `瀏覽 ${name} 系列商品，探索 Oea Market 精選代購商品。`,
+    alternates: {
+      canonical: `/collections/${collectionId}/全部`,
+    },
+    openGraph: {
+      title: `${name} | Oea`,
+      description: `瀏覽 ${name} 系列商品，探索 Oea Market 精選代購商品。`,
+    },
+  };
+}
+
 export default async function CategoryProductsPage({ params }: Props) {
   const { collectionId, categorySlug } = await params;
 
@@ -51,7 +70,7 @@ export default async function CategoryProductsPage({ params }: Props) {
 
   const { collectionInfo } = initialData;
   return (
-    <div className="mx-auto min-h-screen max-w-7xl px-4 py-8">
+    <div className="mx-auto max-w-7xl px-4 ">
       <div className="mb-6">
         {collectionInfo && (
           <PageBreadcrumb

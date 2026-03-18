@@ -1,43 +1,25 @@
 "use client";
-import { LogIn, LogOut, User } from "lucide-react";
-import {
-  NavigationMenuContent,
-  NavigationMenuLink,
-  NavigationMenuTrigger,
-} from "../ui/navigation-menu";
-import { Label } from "../ui/label";
-import { Separator } from "../ui/separator";
+import { LogIn, LogOut } from "lucide-react";
 import Link from "next/link";
 import { Button } from "../ui/button";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { guestMenuItems, userMenuItems } from "@/lib/config/menu";
+import { userMenuItems } from "@/lib/config/menu";
+import { toast } from "sonner";
+import type { auth } from "@/lib/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const MenuItem = ({
-  href,
-  icon: Icon,
-  label,
-  onClick,
-}: {
-  href: string;
-  icon: React.ElementType;
-  label: string;
-  onClick?: () => void;
-}) => (
-  <NavigationMenuLink asChild className="mt-4 hover:bg-neutral-700/10">
-    <Link
-      href={href}
-      className="flex items-center gap-2 px-2 py-1 text-sm"
-      onClick={onClick}
-    >
-      <Icon className="size-4" />
-      <span>{label}</span>
-    </Link>
-  </NavigationMenuLink>
-);
+type Session = typeof auth.$Infer.Session;
 
-const NavbarUser = () => {
-  const { data: session, isPending } = authClient.useSession();
+const NavbarUser = ({ session }: { session: Session | null }) => {
   const router = useRouter();
 
   const handleSignOut = () => {
@@ -45,68 +27,90 @@ const NavbarUser = () => {
       fetchOptions: {
         onSuccess: () => {
           router.refresh();
+          toast.success("帳戶已登出");
         },
       },
     });
   };
 
-  if (isPending) {
-    return null;
-  }
   return (
-    <>
-      <NavigationMenuTrigger>
-        <User className="size-6 hover:text-neutral-600" />
-      </NavigationMenuTrigger>
-      <NavigationMenuContent className="bg-background2">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="none" size="icon" className="size-12">
+          {" "}
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            strokeWidth="1.5"
+            className="size-8 text-neutral-800 hover:text-fuchsia-500"
+          >
+            <path
+              d="M5 20V19C5 15.134 8.13401 12 12 12V12C15.866 12 19 15.134 19 19V20"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+            <path
+              d="M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            ></path>
+          </svg>
+          <span className="sr-only">開啟用戶選單</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
         {session ? (
           <>
-            <Label className="flex items-center gap-2 px-2 pt-3">
-              <User className="size-4" />
-              {session.user.name}
-            </Label>
-            <Separator className="bg-primary/20 my-4 w-full" />
-            <ul className="md:w-[100px] lg:w-[150px]">
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm leading-none font-medium">
+                  {session.user.name}
+                </p>
+                <p className="text-muted-foreground text-xs leading-none">
+                  {session.user.email}
+                </p>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
               {userMenuItems.map((item) => (
-                <li key={item.label}>
-                  <MenuItem {...item} />
-                </li>
+                <DropdownMenuItem key={item.label} asChild>
+                  <Link
+                    href={item.href}
+                    className="flex w-full items-center gap-2"
+                  >
+                    <item.icon className="size-4" />
+                    <span>{item.label}</span>
+                  </Link>
+                </DropdownMenuItem>
               ))}
-              <li>
-                <Button
-                  variant="ghost"
-                  onClick={handleSignOut}
-                  className="ae-body mt-4 flex w-full items-center justify-start gap-2 text-sm hover:bg-neutral-700/10"
-                >
-                  <LogOut className="size-4" />
-                  登出
-                </Button>
-              </li>
-            </ul>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleSignOut}
+              className="text-fuchsia-500 focus:bg-red-50 focus:text-fuchsia-600"
+            >
+              <LogOut className="mr-2 size-4" />
+              <span>登出</span>
+            </DropdownMenuItem>
           </>
         ) : (
-          <ul className="md:w-[100px] lg:w-[150px]">
-            {guestMenuItems.map((item) => (
-              <li key={item.label}>
-                <MenuItem {...item} />
-              </li>
-            ))}
-            <li>
-              <Button
-                variant="ghost"
-                className="ae-body mt-4 flex w-full items-center justify-start gap-2 text-sm hover:bg-neutral-700/10"
-                asChild
-              >
-                <Link href="/sign-in">
-                  <LogIn className="size-4" />
-                  請先登入
-                </Link>
-              </Button>
-            </li>
-          </ul>
+          <>
+            <DropdownMenuLabel>訪客您好</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/sign-in" className="flex w-full items-center gap-2">
+                <LogIn className="size-4" />
+                <span>登入 / 註冊</span>
+              </Link>
+            </DropdownMenuItem>
+          </>
         )}
-      </NavigationMenuContent>
-    </>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

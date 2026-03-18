@@ -1,3 +1,5 @@
+import { Collection } from "@prisma/client";
+
 export interface ProductCollections {
   id: string;
   product: {
@@ -13,6 +15,10 @@ export interface ProductCollections {
 export interface Category {
   id: string;
   name: string;
+}
+
+export interface CollectionProps {
+  collections: Collection[];
 }
 
 export interface CollectionWithCategory {

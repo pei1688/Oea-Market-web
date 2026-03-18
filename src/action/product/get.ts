@@ -12,7 +12,7 @@ const _getProducts = unstable_cache(
     return prisma.product.findMany({ include: productInclude });
   },
   ["products"],
-  { tags: [CACHE_TAGS.products], revalidate: 300 }
+  { tags: [CACHE_TAGS.products], revalidate: 300 },
 );
 
 export async function getProducts() {
@@ -56,14 +56,14 @@ export async function getRelatedProducts(
 // ── getProduct ───────────────────────────────────────────────
 
 const _getProduct = unstable_cache(
-  async (productId: string) => {
+  async (id: string) => {
     return prisma.product.findUnique({
-      where: { id: productId },
+      where: { id },
       include: productInclude,
     });
   },
   ["product"],
-  { tags: [CACHE_TAGS.products], revalidate: 300 }
+  { tags: [CACHE_TAGS.products], revalidate: 300 },
 );
 
 export async function getProduct(productId: string) {
@@ -90,7 +90,7 @@ const _getProductsByCollectionId = unstable_cache(
     });
   },
   ["products-by-collection"],
-  { tags: [CACHE_TAGS.products], revalidate: 300 }
+  { tags: [CACHE_TAGS.products], revalidate: 300 },
 );
 
 export async function getProductsByCollectionId(collectionId: string) {
@@ -104,7 +104,7 @@ const _getProductIds = unstable_cache(
     return prisma.product.findMany({ select: { id: true } });
   },
   ["product-ids"],
-  { tags: [CACHE_TAGS.products], revalidate: 300 }
+  { tags: [CACHE_TAGS.products], revalidate: 300 },
 );
 
 export async function getProductIds() {

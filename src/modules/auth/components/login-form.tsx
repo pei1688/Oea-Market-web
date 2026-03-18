@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Social from "./social";
+import { toast } from "sonner";
 
 const loginFormSchema = z.object({
   email: z.string().email({ message: "請輸入電子信箱" }),
@@ -38,7 +39,7 @@ const LoginForm = () => {
         onSuccess: () => {
           setPending(false);
         },
-        onError: ({ error }) => {
+        onError: ({ error }: { error: Error }) => {
           setPending(false);
           setError(error.message);
         },
@@ -58,7 +59,7 @@ const LoginForm = () => {
         onSuccess: () => {
           setPending(false);
         },
-        onError: ({ error }) => {
+        onError: ({ error }: { error: Error }) => {
           setPending(false);
           setError(error.message);
         },
@@ -68,7 +69,7 @@ const LoginForm = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 w-full">
         <FormInput
           type="email"
           name="email"

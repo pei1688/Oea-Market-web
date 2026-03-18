@@ -116,30 +116,30 @@ const MobileNavMenu = ({
       <Sheet open={sheetOpen} onOpenChange={closeSheet}>
         <SheetContent
           side="top"
-          className="h-screen w-[100%] overflow-hidden"
+          className="h-screen w-full overflow-hidden"
           ref={sheetContentRef}
         >
           <div ref={contentRef} className="h-full">
             {/* 主選單內容 */}
             {currentView === "main" && (
-              <div className="mt-16 flex flex-col">
-                <SheetHeader className="px-12">
-                  <SheetTitle>選單</SheetTitle>
-                </SheetHeader>
+              <div className="flex h-[calc(100vh-80px)] flex-col justify-between pb-10">
+                <div>
+                  <SheetHeader className="mb-4">
+                    <SheetTitle className="text-2xl font-medium">選單</SheetTitle>
+                  </SheetHeader>
 
-                {/* 導航項目 */}
-                <MobileLinks
-                  collections={collections}
-                  switchToView={switchToView}
-                  closeSheet={closeSheet}
-                />
+                  {/* 主要導航連結 */}
+                  <MobileLinks
+                    collections={collections}
+                    switchToView={switchToView}
+                    closeSheet={closeSheet}
+                  />
+                </div>
 
-                {/* 用戶區域 */}
-                <MobileUser
-                  closeSheet={closeSheet}
-                  session={session}
-                  authClient={authClient}
-                />
+                {/* 將用戶區域整合在底部，並傳入 session */}
+                <div className="border-t px-8 pt-8">
+                  <MobileUser session={session} closeSheet={closeSheet} />
+                </div>
               </div>
             )}
 

@@ -57,7 +57,7 @@ const CartContent = () => {
   }
 
   return (
-    <div className="p-6 md:p-0">
+    <div className="my-32 px-3 md:px-5">
       <CartHeader totalPrice={selectedItemsData.totalPrice} />
       {items.length === 0 ? (
         <ClearCart />

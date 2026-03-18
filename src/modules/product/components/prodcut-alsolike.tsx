@@ -11,9 +11,14 @@ import { useRelatedProducts } from "@/services/products";
 import { RelatedProductProps } from "@/types/product/product";
 import ProductItem from "./product-item";
 
-const ProductAlsoLike = ({ categoryId, productId }: RelatedProductProps) => {
+const ProductAlsoLike = ({
+  categoryId,
+  productId,
+  collectionId,
+}: RelatedProductProps) => {
   const { products, error, isPending } = useRelatedProducts({
     categoryId,
+    collectionId,
     productId,
   });
 
@@ -38,7 +43,11 @@ const ProductAlsoLike = ({ categoryId, productId }: RelatedProductProps) => {
             key={pd.id}
             className="max-w-xs basis-full sm:basis-1/2 lg:basis-1/3"
           >
-            <ProductItem product={pd} />
+            <ProductItem
+              product={pd}
+              categorySlug="全部"
+              collectionId={collectionId}
+            />
           </CarouselItem>
         ))}
       </CarouselContent>

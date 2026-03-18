@@ -5,12 +5,17 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-const Hero = () => {
+import Link from "next/link";
+import { CollectionProps } from "@/types/collections";
+
+const Hero = ({ collections }: CollectionProps) => {
+  const newArrival = collections.find((col) => col.name === "新品上市");
+  const sales = collections.find((col) => col.name === "特價商品");
+  const oea = collections.find((col) => col.name === "Oea選品");
+
   return (
     <section className="relative mx-auto h-100 w-full md:h-125 lg:h-175">
       <Carousel
@@ -29,12 +34,12 @@ const Hero = () => {
               <Image
                 src="/banner1.jpg"
                 alt="商品banner"
-                className="rounded-md object-cover shadow-xl"
+                className="object-cover shadow-xl"
                 fill
                 priority
                 quality={60}
               />
-              <div className="absolute top-40 right-5 flex max-w-xs flex-col gap-4 md:top-30 md:right-10 lg:top-1/3 lg:right-20 lg:max-w-md">
+              <div className="absolute top-40 left-5 max-w-xs md:top-30 md:left-10 lg:top-1/3 lg:left-20 lg:max-w-md">
                 <p className="text-sm tracking-widest text-neutral-600 md:text-base">
                   NEW ARRIVAL
                 </p>
@@ -47,9 +52,11 @@ const Hero = () => {
                   精選新品正式登場，為生活加入更多質感與細節。
                 </p>
 
-                <Button className="mt-2 w-fit">
-                  立即探索
-                  <ArrowRight className="ml-2 size-5 text-neutral-100" />
+                <Button asChild className="mt-4 w-fit">
+                  <Link href={`/collections/${newArrival?.id}/全部`}>
+                    立即探索
+                    <ArrowRight className="ml-2 size-5 text-neutral-100" />
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -60,7 +67,7 @@ const Hero = () => {
               <Image
                 src="/banner2.jpg"
                 alt="商品banner"
-                className="rounded-md object-cover shadow-xl"
+                className="object-cover shadow-xl"
                 fill
                 priority
                 quality={60}
@@ -81,10 +88,11 @@ const Hero = () => {
                 <p className="mt-3 text-sm text-neutral-600 md:text-base">
                   精選商品最低 5 折起，數量有限，售完為止。
                 </p>
-
-                <Button className="mt-4 w-fit">
-                  馬上搶購
-                  <ArrowRight className="ml-2 size-5 text-neutral-100" />
+                <Button asChild className="mt-4 w-fit">
+                  <Link href={`/collections/${sales?.id}/全部`}>
+                    馬上搶購
+                    <ArrowRight className="ml-2 size-5 text-neutral-100" />
+                  </Link>
                 </Button>
               </div>
             </div>
@@ -95,7 +103,7 @@ const Hero = () => {
               <Image
                 src="/banner3.jpg"
                 alt="商品banner"
-                className="rounded-md object-cover shadow-xl"
+                className="object-cover shadow-xl"
                 fill
                 priority
                 quality={60}
@@ -113,9 +121,11 @@ const Hero = () => {
                   我們相信簡約與實用能並存，讓每一天都更自在。
                 </p>
 
-                <Button className="mt-4 w-fit">
-                  了解更多
-                  <ArrowRight className="ml-2 size-5" />
+                <Button asChild className="mt-4 w-fit">
+                  <Link href={`/collections/${oea?.id}/全部`}>
+                    了解更多
+                    <ArrowRight className="ml-2 size-5 text-neutral-100" />
+                  </Link>
                 </Button>
               </div>
             </div>

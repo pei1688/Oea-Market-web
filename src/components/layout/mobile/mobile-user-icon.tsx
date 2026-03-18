@@ -1,11 +1,12 @@
 "use client";
 import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
+import type { auth } from "@/lib/auth";
 
-const MobileUserIcon = () => {
-  const { data: session, isPending } = authClient.useSession();
+type Session = typeof auth.$Infer.Session;
+
+const MobileUserIcon = ({ session }: { session: Session | null }) => {
   const router = useRouter();
 
   const handleUserClick = () => {
@@ -17,10 +18,6 @@ const MobileUserIcon = () => {
       router.push("/sign-in");
     }
   };
-
-  if (isPending) {
-    return null;
-  }
 
   return (
     <Button

@@ -5,8 +5,6 @@ import { Prisma } from "@prisma/client";
 import { productInclude } from "@/lib/prisma-includes";
 import { getCollectionInfo, getAvailableFilters } from "@/lib/cached-queries";
 
-// ── 型別定義 ──────────────────────────────────────────────────
-
 export interface InfiniteProductFilterParams {
   collectionId: string;
   categorySlug?: string;

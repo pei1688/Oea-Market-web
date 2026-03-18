@@ -39,6 +39,7 @@ export interface CartItem {
 
 export interface RelatedProductProps {
   categoryId: string;
+  collectionId: string;
   productId: string;
 }
 

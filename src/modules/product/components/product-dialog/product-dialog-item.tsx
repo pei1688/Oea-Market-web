@@ -31,7 +31,9 @@ const ProductDialogItem = ({ productId }: { productId: string }) => {
   return (
     <Dialog>
       <DialogTrigger className="cursor-pointer" asChild>
-        <ShoppingCart className="size-6 text-neutral-800 hover:text-neutral-600" />
+        <button className="cursor-pointer">
+          <ShoppingCart className="size-6 text-neutral-800 hover:text-neutral-600" />
+        </button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto p-4 sm:max-w-3xl">
         <VisuallyHidden>
@@ -48,7 +50,7 @@ const ProductDialogContentFetcher = ({ productId }: { productId: string }) => {
 
   if (isPending) {
     return (
-      <div className="flex h-[500px] w-full items-center justify-center">
+      <div className="flex h-125 w-full items-center justify-center">
         <Spinner />
       </div>
     );
@@ -267,7 +269,7 @@ const ProductDialogDetail = ({ product }: ProductDetailProps) => {
             discountPercentage={product.discountPercentage}
           />
 
-          <div className="flex-grow">
+          <div className="grow">
             <VariantSelector
               groupedVariants={groupedVariants}
               product={product}

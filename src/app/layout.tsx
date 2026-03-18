@@ -4,10 +4,9 @@ import Navbar from "@/components/layout/navbar";
 import { Toaster } from "sonner";
 import Footer from "@/components/layout/footer";
 import ReactQueryProvider from "@/providers/react-query-provider";
-import Template from "./template";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://aep-store.vercel.app/"),
+  metadataBase: new URL("https://oea-market-web.vercel.app"),
   title: {
     default: "Oea market",
     template: "%s | Oea",
@@ -25,10 +24,31 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: "Oea market - 代購電商",
+    siteName: "Oea Market",
     description:
       "Oea market 專營海外代購，幫助你輕鬆購買全球商品，快速、安全、可靠。",
     locale: "zh_TW",
     type: "website",
+    images: [
+      {
+        url: "/default-collection.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Oea Market 品牌封面",
+      },
+    ],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
   },
 };
 
@@ -41,9 +61,9 @@ export default function RootLayout({
     <html lang="zh-Hant">
       <body className="flex min-h-screen flex-col antialiased">
         <ReactQueryProvider>
-          <Toaster position="bottom-right" richColors />
+          <Toaster position="top-center" richColors />
           <Navbar />
-          <Template>{children}</Template>
+          <main className="flex-1">{children}</main>
           <Footer />
         </ReactQueryProvider>
       </body>

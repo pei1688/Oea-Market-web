@@ -1,6 +1,12 @@
 "use client";
 
-import React from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import {
   NavigationMenuContent,
   NavigationMenuItem,
@@ -39,125 +45,121 @@ const NavbarCart = () => {
     updateQuantity(itemId, newQuantity);
   };
   return (
-    <NavigationMenuItem>
-      <NavigationMenuTrigger className="relative">
-        <Link href={"/cart"}>
-          <ShoppingCart className="size-6 hover:text-neutral-600" />
-        </Link>
-        {totalItems > 0 && (
-          <span className="absolute -top-0 -right-2 flex size-4 items-center justify-center rounded-full bg-fuchsia-500 text-xs text-fuchsia-50">
-            {totalItems}
-          </span>
-        )}
-      </NavigationMenuTrigger>
+    <DropdownMenu>
+      {/* 使用 asChild 確保 Trigger 是 Button，並解決 ARIA 錯誤 */}
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" size="icon" className="relative size-9">
+          <ShoppingCart className="size-6 transition-colors hover:text-neutral-600" />
+          {totalItems > 0 && (
+            <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-fuchsia-500 text-[10px] font-bold text-white">
+              {totalItems}
+            </span>
+          )}
+          <span className="sr-only">開啟購物車預覽</span>
+        </Button>
+      </DropdownMenuTrigger>
 
-      <NavigationMenuContent className="bg-background2">
-        <div className="p-4 md:w-[300px] lg:w-[400px]">
-          <Label className="text-lg font-semibold">
-            您的購物車 ({totalItems})
-          </Label>
-          <Separator className="bg-primary/20 my-4 w-full" />
+      <DropdownMenuContent align="end" className="w-[320px] p-4 sm:w-95">
+        <DropdownMenuLabel className="flex items-center justify-between text-base">
+          <span>您的購物車 ({totalItems})</span>
+        </DropdownMenuLabel>
 
-          {items.length === 0 ? (
-            <div className="flex items-center justify-center py-8">
-              <span className="ae-des-subContent text-center">尚未有商品</span>
-            </div>
-          ) : (
-            <div className="max-h-96 space-y-4 overflow-y-auto">
-              {items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-center space-x-3 rounded-lg border p-3"
-                >
-                  <div className="relative size-16">
+        <DropdownMenuSeparator className="my-3" />
+
+        {items.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-neutral-500">
+            <ShoppingCart className="mb-2 size-10 opacity-20" />
+            <span className="text-sm">尚未有商品</span>
+          </div>
+        ) : (
+          <>
+            <div className="max-h-87.5 space-y-4 overflow-y-auto pr-1">
+              {items.map((item: any) => (
+                <div key={item.id} className="flex gap-3">
+                  {/* 商品圖片 */}
+                  <div className="relative size-16 shrink-0 overflow-hidden rounded-md border">
                     <Image
                       src={item.image}
                       alt={item.name}
-                      className="rounded object-cover"
                       fill
-                      priority
+                      className="object-cover"
                     />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h4 className="truncate font-medium">{item.name}</h4>
-                    {item.variantText && (
-                      <p className="text-sm text-neutral-500">
-                        {item.variantText}
-                      </p>
-                    )}
-                    <p className="text-sm font-semibold">NT${item.price}</p>
-                    {/* 庫存狀態提示 */}
-                    {isMaxStock(item) && (
-                      <p
-                        className={`text-xs text-fuchsia-700 transition-opacity duration-200 ${
-                          isMaxStock(item)
-                            ? "visible opacity-100"
-                            : "invisible opacity-0"
-                        }`}
-                      >
-                        已達最大庫存數量
-                      </p>
-                    )}
+
+                  {/* 商品資訊 */}
+                  <div className="flex min-w-0 flex-1 flex-col justify-between">
+                    <div>
+                      <h4 className="truncate text-sm font-medium">
+                        {item.name}
+                      </h4>
+                      {item.variantText && (
+                        <p className="text-xs text-neutral-500">
+                          {item.variantText}
+                        </p>
+                      )}
+                    </div>
+                    <p className="text-sm font-bold">NT${item.price}</p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Button
-                      variant="outline"
-                      size="none"
-                      onClick={() =>
-                        handleQuantityChange(item.id, item.quantity - 1)
-                      }
-                      className="size-8"
-                    >
-                      <Minus className="size-4" />
-                    </Button>
-                    <span className="w-8 text-center">{item.quantity}</span>
-                    <Button
-                      variant="outline"
-                      size="none"
-                      onClick={() =>
-                        handleQuantityChange(item.id, item.quantity + 1)
-                      }
-                      className="size-8"
-                      disabled={isMaxStock(item)}
-                    >
-                      <Plus className="size-4" />
-                    </Button>
+
+                  {/* 數量操作 */}
+                  <div className="flex flex-col items-end justify-between">
                     <Button
                       variant="ghost"
                       size="none"
                       onClick={() => removeItem(item.id)}
-                      className="text-destructive size-8"
+                      className="hover:text-destructive size-7 text-neutral-400"
                     >
                       <Trash2 className="size-4" />
                     </Button>
+
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="none"
+                        className="size-6 rounded-sm"
+                        onClick={(e) => {
+                          e.preventDefault(); // 防止觸發 Dropdown 關閉
+                          handleQuantityChange(item.id, item.quantity - 1);
+                        }}
+                      >
+                        <Minus className="size-3" />
+                      </Button>
+                      <span className="w-4 text-center text-xs">
+                        {item.quantity}
+                      </span>
+                      <Button
+                        variant="outline"
+                        size="none"
+                        className="size-6 rounded-sm"
+                        disabled={isMaxStock(item)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleQuantityChange(item.id, item.quantity + 1);
+                        }}
+                      >
+                        <Plus className="size-3" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
-          )}
 
-          {items.length > 0 && (
-            <>
-              <Separator className="bg-primary/20 my-4 w-full" />
-              <div className="space-y-4">
-                <div className="flex items-center justify-between text-lg font-semibold">
-                  <span>總計：</span>
-                  <span>NT${totalPrice}</span>
-                </div>
-                <Button
-                  variant={"default"}
-                  size={"sm"}
-                  className="w-full rounded-sm text-sm"
-                  asChild
-                >
-                  <Link href={"/cart"}>查看購物車</Link>
-                </Button>
+            <DropdownMenuSeparator className="my-4" />
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-base font-bold">
+                <span>總計：</span>
+                <span className="text-fuchsia-600">NT${totalPrice}</span>
               </div>
-            </>
-          )}
-        </div>
-      </NavigationMenuContent>
-    </NavigationMenuItem>
+              <Button asChild className="w-full">
+                <Link href="/cart">結帳帳單</Link>
+              </Button>
+            </div>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 };
 

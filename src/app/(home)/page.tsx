@@ -4,29 +4,20 @@ import Brand from "@/modules/home/components/brand";
 import { Suspense } from "react";
 import ProductList from "@/modules/home/components/product-list";
 import { Separator } from "@/components/ui/separator";
+import Spinner from "@/components/spinner";
+import { getCollections } from "@/action/collection";
 
-const HomePage = () => {
+const HomePage = async () => {
+  const collections = await getCollections();
   return (
-    <div className="flex w-full flex-col space-y-12">
-      <Hero />
+    <div className="flex w-full flex-col space-y-12 ">
+      <Hero collections={collections}/>
       <Separator className="mx-auto max-w-7xl bg-neutral-500/20" />
-      <Suspense
-        fallback={
-          <div className="flex min-h-[50vh] items-center justify-center">
-            loading...
-          </div>
-        }
-      >
-        <Collections />
+      <Suspense fallback={<Spinner />}>
+        <Collections collections={collections} />
       </Suspense>
       <Separator className="mx-auto max-w-7xl bg-neutral-500/20" />
-      <Suspense
-        fallback={
-          <div className="flex min-h-[50vh] items-center justify-center">
-            loading...
-          </div>
-        }
-      >
+      <Suspense fallback={<Spinner />}>
         <ProductList />
       </Suspense>
       <Separator className="mx-auto max-w-7xl bg-neutral-500/20" />

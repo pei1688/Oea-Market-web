@@ -19,10 +19,11 @@ const CollectionItem = ({ col }: CollectionItemProps) => {
         src={col.image || "/default-collection.jpg"}
         alt={col.name}
         fill
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 300px"
         className="rounded-sm object-cover transition-transform"
         blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/+ZNPQAIXwM4ihSTfQAAAABJRU5ErkJggg=="
         quality={60}
+        priority
       />
       <div className="absolute inset-0 z-10 rounded-sm bg-linear-to-t from-neutral-800/80 via-neutral-800/20 to-transparent transition-opacity duration-500 group-hover:from-neutral-800/90" />
       <div className="absolute inset-0 flex w-full flex-col items-center justify-center gap-4 px-4 py-3 text-neutral-50">

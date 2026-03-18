@@ -51,7 +51,7 @@ const MobileCart = () => {
         >
           <ShoppingCart className="size-5 text-neutral-800" />
           {totalItems > 0 && (
-            <span className="absolute -top-0 -right-0 flex size-4 items-center justify-center rounded-full bg-fuchsia-500 text-xs text-fuchsia-50">
+            <span className="absolute top-0 right-0 flex size-4 items-center justify-center rounded-full bg-fuchsia-500 text-xs text-fuchsia-50">
               {totalItems}
             </span>
           )}

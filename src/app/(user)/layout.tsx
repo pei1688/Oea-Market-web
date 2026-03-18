@@ -1,5 +1,10 @@
+import { type Metadata } from "next";
 import { requireAuth } from "@/action/user";
 import UserSidebar from "@/modules/user/components/user-sidebar";
+
+export const metadata: Metadata = {
+  robots: { index: false },
+};
 
 export default async function UserLayoutFlexbox({
   children,

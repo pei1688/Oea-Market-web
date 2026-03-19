@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart-store";
 import { Address } from "@prisma/client";
-import { ProfileWithAddress } from "@/types/checkout";
+import { ProfileWithAddress, OneTimeAddressData } from "@/types/checkout";
 
 export const useCheckout = (profile: ProfileWithAddress) => {
   const router = useRouter();
@@ -80,6 +80,19 @@ export const useCheckout = (profile: ProfileWithAddress) => {
       setIsAddressDialogOpen(false);
     }
   };
+
+  const handleOneTimeAddress = (data: OneTimeAddressData) => {
+    const tempAddress: Address = {
+      id: "temp",
+      isDefault: false,
+      profileId: profile.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...data,
+    };
+    setSelectedAddress(tempAddress);
+  };
+
   // 處理取貨付款訂單
   const handleCODOrder = async () => {
     try {
@@ -183,6 +196,7 @@ export const useCheckout = (profile: ProfileWithAddress) => {
     handleBackToCart,
     handlePlaceOrder,
     handleAddressSelect,
+    handleOneTimeAddress,
     handleOnlinePayment,
     handleCODOrder,
   };

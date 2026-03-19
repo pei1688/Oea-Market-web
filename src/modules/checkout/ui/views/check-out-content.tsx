@@ -7,7 +7,6 @@ import { CheckoutItemsTable } from "../../components/checkout-items-table";
 import { OrderInfo } from "../../components/order-info";
 import { CartContentProps } from "@/types/checkout";
 import { useCheckout } from "@/hooks/use-checkout";
-import { Separator } from "@/components/ui/separator";
 
 const CheckOutContent = ({ profile }: CartContentProps) => {
   const router = useRouter();

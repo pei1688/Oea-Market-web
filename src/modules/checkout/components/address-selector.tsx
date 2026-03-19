@@ -74,7 +74,7 @@ export const AddressSelector = ({
 
   const handleOneTimeSubmit = (data: OneTimeFormValues) => {
     onOneTimeAddress(data);
-    onOpenChange(false);
+    handleDialogOpenChange(false);
   };
 
   return (

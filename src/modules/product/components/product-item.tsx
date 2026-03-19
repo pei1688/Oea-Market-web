@@ -8,7 +8,6 @@ import { calculateDiscountedPrice } from "@/lib/price";
 
 interface ProductItemProps {
   product: ProductListItem;
-  priority?: boolean;
   collectionId?: string;
   categorySlug?: string;
 }
@@ -26,7 +25,6 @@ const ProductDialogItem = dynamic(
 const ProductItem = memo(
   ({
     product,
-    priority = false,
     collectionId,
     categorySlug,
   }: ProductItemProps) => {
@@ -42,7 +40,7 @@ const ProductItem = memo(
         : `/product/${product.id}`;
 
     return (
-      <div className="relative aspect-3/4 w-full rounded-sm border bg-neutral-100 transition-all duration-300 hover:border-fuchsia-500 hover:shadow-lg">
+      <div className="relative aspect-3/4 w-full rounded-sm border border-transparent bg-neutral-100 shadow-lg duration-300 hover:border-fuchsia-500 hover:shadow-2xl">
         {/* Sale badge */}
         {discountInfo.hasDiscount && (
           <div className="ae-small absolute top-2 left-2 z-10 rounded bg-fuchsia-600 px-2 py-1 text-neutral-100">
@@ -59,7 +57,7 @@ const ProductItem = memo(
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               fill
               quality={60}
-              priority={priority}
+              priority
             />
           </div>
 
@@ -83,7 +81,7 @@ const ProductItem = memo(
                   <p className="font-semibold">NT$ {product.price}</p>
                 )}
               </div>
-              <ProductDialogItem productId={product.id} />
+              <ProductDialogItem productId={product.id} collectionId={collectionId} />
             </div>
           </div>
         </Link>

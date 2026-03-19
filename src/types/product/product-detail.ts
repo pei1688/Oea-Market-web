@@ -32,4 +32,5 @@ interface ExtendedProductWithCategory
 
 export interface ProductDetailProps {
   product: ExtendedProductWithCategory;
+  collectionId?: string;
 }

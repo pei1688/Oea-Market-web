@@ -27,7 +27,13 @@ import { ProductDialogImage } from "./product-dialog-image";
 import { ProductDialogHeader } from "./product-dialog-header";
 import { ProductDialogActions } from "./product-dialog-actions";
 
-const ProductDialogItem = ({ productId }: { productId: string }) => {
+const ProductDialogItem = ({
+  productId,
+  collectionId,
+}: {
+  productId: string;
+  collectionId?: string;
+}) => {
   return (
     <Dialog>
       <DialogTrigger className="cursor-pointer" asChild>
@@ -39,13 +45,19 @@ const ProductDialogItem = ({ productId }: { productId: string }) => {
         <VisuallyHidden>
           <DialogTitle>商品詳情</DialogTitle>
         </VisuallyHidden>
-        <ProductDialogContentFetcher productId={productId} />
+        <ProductDialogContentFetcher productId={productId} collectionId={collectionId} />
       </DialogContent>
     </Dialog>
   );
 };
 
-const ProductDialogContentFetcher = ({ productId }: { productId: string }) => {
+const ProductDialogContentFetcher = ({
+  productId,
+  collectionId,
+}: {
+  productId: string;
+  collectionId?: string;
+}) => {
   const { product, error, isPending } = useProductById({ id: productId });
 
   if (isPending) {
@@ -60,10 +72,10 @@ const ProductDialogContentFetcher = ({ productId }: { productId: string }) => {
     return <div>無法載入商品，請稍後再試。</div>;
   }
 
-  return <ProductDialogDetail product={product} />;
+  return <ProductDialogDetail product={product} collectionId={collectionId} />;
 };
 
-const ProductDialogDetail = ({ product }: ProductDetailProps) => {
+const ProductDialogDetail = ({ product, collectionId }: ProductDetailProps) => {
   const router = useRouter();
   const { addItem } = useCartStore();
   const {
@@ -233,6 +245,7 @@ const ProductDialogDetail = ({ product }: ProductDetailProps) => {
     stock: stockValidation.currentStock,
     variantId: variantInfo.variantId,
     spec2Id: variantInfo.spec2Id,
+    collectionId,
   });
 
   const handleAddToCart = () => {

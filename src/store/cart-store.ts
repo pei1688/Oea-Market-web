@@ -15,6 +15,7 @@ export interface CartItem {
   stock: number;
   variantId?: string;
   spec2Id?: string;
+  collectionId?: string;
 }
 
 // 購物車狀態類型

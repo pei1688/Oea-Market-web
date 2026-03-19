@@ -19,7 +19,7 @@ import { VariantSelector } from "./variant-selector";
 import { QuantitySelector } from "./quantity-selector";
 import { ActionButtons } from "./action-buttons";
 
-const ProductDetail = ({ product }: ProductDetailProps) => {
+const ProductDetail = ({ product, collectionId }: ProductDetailProps) => {
   const router = useRouter();
   const { addItem } = useCartStore();
   const {
@@ -189,6 +189,7 @@ const ProductDetail = ({ product }: ProductDetailProps) => {
     stock: stockValidation.currentStock,
     variantId: variantInfo.variantId,
     spec2Id: variantInfo.spec2Id,
+    collectionId,
   });
 
   const handleAddToCart = () => {

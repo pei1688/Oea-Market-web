@@ -15,7 +15,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { type CartItem } from "@/store/cart-store";
 
-type Props = {
+type CartTableProps = {
   items: CartItem[];
   selectedItems: Set<string>;
   handleSelectAll: (checked: boolean) => void;
@@ -31,7 +31,7 @@ const CartTable = ({
   handleItemSelect,
   handleQuantityChange,
   removeItem,
-}: Props) => {
+}: CartTableProps) => {
   // 檢查是否全選
   const isAllSelected = items.length > 0 && selectedItems.size === items.length;
   const isIndeterminate =
@@ -68,20 +68,23 @@ const CartTable = ({
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[50px]">
+              <TableHead className="w-12.5">
                 <Checkbox
-                  checked={isAllSelected}
+                  checked={
+                    isAllSelected
+                      ? true
+                      : isIndeterminate
+                        ? "indeterminate"
+                        : false
+                  }
                   onCheckedChange={handleSelectAll}
                   aria-label="全選商品"
-                  className={
-                    isIndeterminate ? "data-[state=checked]:bg-primary/50" : ""
-                  }
                 />
               </TableHead>
-              <TableHead className="w-[300px]">商品</TableHead>
+              <TableHead className="w-75">商品</TableHead>
               <TableHead>選項</TableHead>
               <TableHead>單價</TableHead>
-              <TableHead className="w-[200px] text-center">數量</TableHead>
+              <TableHead className="w-50 text-center">數量</TableHead>
               <TableHead>總價格</TableHead>
               <TableHead>操作</TableHead>
             </TableRow>
@@ -100,10 +103,10 @@ const CartTable = ({
                 </TableCell>
                 <TableCell className="rounded-lg">
                   <Link
-                    href={`/product/${item.productId}`}
+                    href={item.collectionId ? `/collections/${item.collectionId}/全部/product/${item.productId}` : `/product/${item.productId}`}
                     className="flex items-center space-x-3"
                   >
-                    <div className="relative h-16 w-16 flex-shrink-0">
+                    <div className="relative h-16 w-16 shrink-0">
                       <Image
                         src={item.image}
                         alt={item.name}
@@ -125,7 +128,7 @@ const CartTable = ({
                     NT${item.price.toLocaleString()}
                   </span>
                 </TableCell>
-                <TableCell className="w-[150px]">
+                <TableCell className="w-37.5">
                   <QuantityControls item={item} />
                 </TableCell>
                 <TableCell>
@@ -165,7 +168,7 @@ const CartTable = ({
         </div>
 
         {/* 商品卡片列表 */}
-        <div className="max-h-[400px] space-y-4 overflow-y-auto shadow-md md:max-h-[500px]">
+        <div className="max-h-100 space-y-4 overflow-y-auto shadow-md md:max-h-125">
           {items.map((item) => (
             <Card key={item.id} className="overflow-hidden rounded-sm">
               <CardContent className="p-4">
@@ -190,10 +193,10 @@ const CartTable = ({
 
                 {/* 商品信息 */}
                 <Link
-                  href={`/product/${item.productId}`}
+                  href={item.collectionId ? `/collections/${item.collectionId}/全部/product/${item.productId}` : `/product/${item.productId}`}
                   className="mb-4 flex gap-3"
                 >
-                  <div className="relative h-20 w-20 flex-shrink-0 sm:h-24 sm:w-24">
+                  <div className="relative h-20 w-20 shrink-0 sm:h-24 sm:w-24">
                     <Image
                       src={item.image}
                       alt={item.name}

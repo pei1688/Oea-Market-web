@@ -135,7 +135,7 @@ const CollectionProductPage = async ({
           currentPageName={product.name}
         />
         <div className="mx-auto mt-12 max-w-7xl space-y-8">
-          <ProductDetail product={product} />
+          <ProductDetail product={product} collectionId={collectionId} />
           <Separator className="bg-primary/20 my-8" />
           <ProductDescription description={product.description} />
           <div className="bg-primary/20 h-px w-full" />

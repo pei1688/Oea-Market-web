@@ -7,6 +7,7 @@ import { CheckoutItemsTable } from "../../components/checkout-items-table";
 import { OrderInfo } from "../../components/order-info";
 import { CartContentProps } from "@/types/checkout";
 import { useCheckout } from "@/hooks/use-checkout";
+import { Separator } from "@/components/ui/separator";
 
 const CheckOutContent = ({ profile }: CartContentProps) => {
   const router = useRouter();
@@ -23,6 +24,7 @@ const CheckOutContent = ({ profile }: CartContentProps) => {
     handleQuantityChange,
     handleBackToCart,
     handleAddressSelect,
+    handleOneTimeAddress,
     handleOnlinePayment,
     handleCODOrder,
   } = useCheckout(profile);
@@ -58,9 +60,13 @@ const CheckOutContent = ({ profile }: CartContentProps) => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8 flex items-center justify-between">
-        <h1 className="ae-checkout-title">結帳</h1>
-        <Button variant="link" onClick={handleBackToCart}>
+      <div className="flex items-center justify-between mb-6">
+        <div className="ae-body px-2">結帳</div>
+        <Button
+          variant="link"
+          onClick={handleBackToCart}
+          className="ae-checkout-title hover:text-neutral-700"
+        >
           返回購物車
         </Button>
       </div>
@@ -78,6 +84,7 @@ const CheckOutContent = ({ profile }: CartContentProps) => {
           isAddressDialogOpen={isAddressDialogOpen}
           onAddressDialogChange={setIsAddressDialogOpen}
           onAddressSelect={handleAddressSelect}
+          onOneTimeAddress={handleOneTimeAddress}
           onPlaceOrder={handlePayment}
           paymentMethod={paymentMethod}
           onPaymentMethodChange={setPaymentMethod}

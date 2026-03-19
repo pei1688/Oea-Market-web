@@ -15,7 +15,13 @@ const Navbar = async () => {
             href={"/"}
             className="flex shrink-0 cursor-pointer items-center gap-3"
           >
-            <Image src={"/logo.png"} alt="OeaLogo" width={24} height={24} />
+            <Image
+              src={"/logo.png"}
+              alt="OeaLogo"
+              width={24}
+              height={24}
+              priority
+            />
             <p className="ae-section-title hidden md:flex">Oea</p>
           </Link>
 

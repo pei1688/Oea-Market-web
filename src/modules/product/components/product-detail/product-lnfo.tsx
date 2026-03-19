@@ -24,13 +24,8 @@ export const ProductInfo = ({ product, priceInfo }: ProductInfoProps) => {
               </span>
 
               {/* 原價（劃線） */}
-              <span className="line-through">
+              <span className="mt-2 text-sm text-neutral-500 line-through">
                 NT${priceInfo.originalPrice.toLocaleString()}
-              </span>
-
-              {/* 折扣百分比 */}
-              <span className="font-semibold text-fuchsia-600">
-                {Math.round(priceInfo.discountPercentage)}%折扣
               </span>
             </div>
           </>

@@ -203,16 +203,12 @@
 }
 
 @layer base {
-  html {
-    font-family: Arial, sans-serif;
-    line-height: 1.5;
-    letter-spacing: 0.16px;
-  }
-  * {
-    @apply border-border outline-ring/50;
-  }
+ 
   body {
     @apply bg-neutral-100;
+    font-family: var(--font-noto), var(--font-montserrat), sans-serif;
+    line-height: 1.5;
+    letter-spacing: 0.16px;
   }
 
   /* product */

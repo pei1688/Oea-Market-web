@@ -81,24 +81,12 @@ const MobileFilters = ({
                     <Label htmlFor="newest">最新上架</Label>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="oldest" id="oldest" />
-                    <Label htmlFor="oldest">最舊上架</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
                     <RadioGroupItem value="price-low" id="price-low" />
                     <Label htmlFor="price-low">價格：低到高</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="price-high" id="price-high" />
                     <Label htmlFor="price-high">價格：高到低</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="name-asc" id="name-asc" />
-                    <Label htmlFor="name-asc">名稱：A-Z</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="name-desc" id="name-desc" />
-                    <Label htmlFor="name-desc">名稱：Z-A</Label>
                   </div>
                 </RadioGroup>
               </AccordionContent>

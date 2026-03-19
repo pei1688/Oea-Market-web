@@ -93,7 +93,7 @@ export const AddressSelector = ({
         變更
       </Button>
       <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
-        <DialogContent className="top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded-sm bg-neutral-200 p-4">
+        <DialogContent className="top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] rounded-sm bg-neutral-100 p-4">
           <DialogHeader>
             <DialogTitle>送貨資訊</DialogTitle>
             <DialogDescription asChild>
@@ -128,49 +128,49 @@ export const AddressSelector = ({
                   </a>
                 </div>
               ) : (
-              <RadioGroup
-                value={selectedAddress?.id || ""}
-                onValueChange={onAddressSelect}
-                className="space-y-4"
-              >
-                {addresses.map((address) => (
-                  <div
-                    key={address.id}
-                    className="hover:border-primary flex flex-col rounded-lg border p-4 transition sm:flex-row sm:items-start sm:space-x-4"
-                  >
-                    <div className="mb-2 flex gap-2 sm:mt-1 sm:mb-0">
-                      <RadioGroupItem
-                        value={address.id}
-                        id={address.id}
-                        className="mt-1"
-                      />
-                      <div className="flex-1">
-                        <Label
-                          htmlFor={address.id}
-                          className="block cursor-pointer"
-                        >
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="text-base font-medium">
-                              {address.recipientName}
-                            </span>
-                            {address.isDefault && (
-                              <span className="rounded bg-fuchsia-800 px-1.5 py-0.5 text-xs text-fuchsia-600">
-                                預設
+                <RadioGroup
+                  value={selectedAddress?.id || ""}
+                  onValueChange={onAddressSelect}
+                  className="space-y-4"
+                >
+                  {addresses.map((address) => (
+                    <div
+                      key={address.id}
+                      className="hover:border-primary flex flex-col rounded-lg border p-4 transition sm:flex-row sm:items-start sm:space-x-4"
+                    >
+                      <div className="mb-2 flex gap-2 sm:mt-1 sm:mb-0">
+                        <RadioGroupItem
+                          value={address.id}
+                          id={address.id}
+                          className="mt-1"
+                        />
+                        <div className="flex-1">
+                          <Label
+                            htmlFor={address.id}
+                            className="block cursor-pointer"
+                          >
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-base font-medium">
+                                {address.recipientName}
                               </span>
-                            )}
-                          </div>
-                          <p className="text-sm wrap-break-word text-neutral-600">
-                            {address.phoneNumber}
-                          </p>
-                          <p className="text-sm wrap-break-word text-neutral-600">
-                            {formatFullAddress(address)}
-                          </p>
-                        </Label>
+                              {address.isDefault && (
+                                <span className="rounded bg-fuchsia-800 px-1.5 py-0.5 text-xs text-fuchsia-600">
+                                  預設
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm wrap-break-word text-neutral-600">
+                              {address.phoneNumber}
+                            </p>
+                            <p className="text-sm wrap-break-word text-neutral-600">
+                              {formatFullAddress(address)}
+                            </p>
+                          </Label>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </RadioGroup>
+                  ))}
+                </RadioGroup>
               )}
             </TabsContent>
 
@@ -187,7 +187,11 @@ export const AddressSelector = ({
                       <FormItem>
                         <FormLabel>名稱</FormLabel>
                         <FormControl>
-                          <Input placeholder="請輸入聯絡人名稱" {...field} />
+                          <Input
+                            placeholder="請輸入聯絡人名稱"
+                            {...field}
+                            className="border-primary/50 border"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -200,7 +204,11 @@ export const AddressSelector = ({
                       <FormItem>
                         <FormLabel>聯絡人電話</FormLabel>
                         <FormControl>
-                          <Input placeholder="請輸入聯絡電話" {...field} />
+                          <Input
+                            placeholder="請輸入聯絡電話"
+                            {...field}
+                            className="border-primary/50 border"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -213,7 +221,11 @@ export const AddressSelector = ({
                       <FormItem>
                         <FormLabel>郵遞區號</FormLabel>
                         <FormControl>
-                          <Input placeholder="請輸入郵遞區號" {...field} />
+                          <Input
+                            placeholder="請輸入郵遞區號"
+                            {...field}
+                            className="border-primary/50 border"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -227,7 +239,11 @@ export const AddressSelector = ({
                         <FormItem>
                           <FormLabel>縣市</FormLabel>
                           <FormControl>
-                            <Input placeholder="請輸入縣市" {...field} />
+                            <Input
+                              placeholder="請輸入縣市"
+                              {...field}
+                              className="border-primary/50 border"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -240,7 +256,11 @@ export const AddressSelector = ({
                         <FormItem>
                           <FormLabel>區域</FormLabel>
                           <FormControl>
-                            <Input placeholder="請輸入區域" {...field} />
+                            <Input
+                              placeholder="請輸入區域"
+                              {...field}
+                              className="border-primary/50 border"
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -254,7 +274,11 @@ export const AddressSelector = ({
                       <FormItem>
                         <FormLabel>詳細地址</FormLabel>
                         <FormControl>
-                          <Input placeholder="請輸入詳細地址" {...field} />
+                          <Input
+                            placeholder="請輸入詳細地址"
+                            {...field}
+                            className="border-primary/50 border"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

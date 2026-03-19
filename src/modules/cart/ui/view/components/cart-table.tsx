@@ -103,7 +103,11 @@ const CartTable = ({
                 </TableCell>
                 <TableCell className="rounded-lg">
                   <Link
-                    href={item.collectionId ? `/collections/${item.collectionId}/全部/product/${item.productId}` : `/product/${item.productId}`}
+                    href={
+                      item.collectionId
+                        ? `/collections/${item.collectionId}/全部/product/${item.productId}`
+                        : `/product/${item.productId}`
+                    }
                     className="flex items-center space-x-3"
                   >
                     <div className="relative h-16 w-16 shrink-0">
@@ -193,7 +197,11 @@ const CartTable = ({
 
                 {/* 商品信息 */}
                 <Link
-                  href={item.collectionId ? `/collections/${item.collectionId}/全部/product/${item.productId}` : `/product/${item.productId}`}
+                  href={
+                    item.collectionId
+                      ? `/collections/${item.collectionId}/全部/product/${item.productId}`
+                      : `/product/${item.productId}`
+                  }
                   className="mb-4 flex gap-3"
                 >
                   <div className="relative h-20 w-20 shrink-0 sm:h-24 sm:w-24">

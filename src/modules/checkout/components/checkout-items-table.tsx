@@ -30,15 +30,15 @@ export const CheckoutItemsTable = ({
   items,
   onQuantityChange,
 }: CheckoutItemsTableProps) => (
-  <div className="lg:col-span-2">
-    <h2 className="ae-checkout-subTitle mb-4">訂單商品</h2>
+  <div className="rounded-lg bg-neutral-200/50 p-6 lg:col-span-2">
+    <h2 className="ae-checkout-subTitle mb-4 px-2">訂單商品</h2>
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[300px]">商品</TableHead>
+          <TableHead className="w-75">商品</TableHead>
           <TableHead>選項</TableHead>
           <TableHead>單價</TableHead>
-          <TableHead className="w-[200px] text-center">數量</TableHead>
+          <TableHead className="w-50 text-center">數量</TableHead>
           <TableHead>小計</TableHead>
         </TableRow>
       </TableHeader>

@@ -4,7 +4,21 @@ import Navbar from "@/components/layout/navbar";
 import { Toaster } from "sonner";
 import Footer from "@/components/layout/footer";
 import ReactQueryProvider from "@/providers/react-query-provider";
+import { Montserrat, Noto_Sans_TC } from "next/font/google";
 
+const montserrat = Montserrat({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
+
+const notoSansTC = Noto_Sans_TC({
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
+  variable: "--font-noto",
+  display: "swap",
+});
 export const metadata: Metadata = {
   metadataBase: new URL("https://oea-market-web.vercel.app"),
   title: {
@@ -59,7 +73,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-Hant">
-      <body className="flex min-h-screen flex-col antialiased">
+      <body
+        className={`${montserrat.variable} ${notoSansTC.variable} flex min-h-screen flex-col antialiased`}
+      >
         <ReactQueryProvider>
           <Toaster position="top-center" richColors />
           <Navbar />

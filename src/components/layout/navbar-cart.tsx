@@ -74,12 +74,12 @@ const NavbarCart = () => {
               {items.map((item: any) => (
                 <div key={item.id} className="flex gap-3">
                   {/* 商品圖片 */}
-                  <div className="relative size-16 shrink-0 overflow-hidden rounded-md border">
+                  <div className="relative size-16 shrink-0 overflow-hidden rounded-md ">
                     <Image
                       src={item.image}
                       alt={item.name}
                       fill
-                      className="object-cover"
+                      className="object-cover "
                     />
                   </div>
 
@@ -105,6 +105,7 @@ const NavbarCart = () => {
                       size="none"
                       onClick={() => removeItem(item.id)}
                       className="hover:text-destructive size-7 text-neutral-400"
+                      aria-label="刪除"
                     >
                       <Trash2 className="size-4" />
                     </Button>
@@ -150,7 +151,7 @@ const NavbarCart = () => {
                 <span className="text-fuchsia-600">NT${totalPrice}</span>
               </div>
               <Button asChild className="w-full">
-                <Link href="/cart">結帳帳單</Link>
+                <Link href="/cart">查看購物車</Link>
               </Button>
             </div>
           </>

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Address } from "@prisma/client";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -51,7 +52,9 @@ export const AddressSelector = ({
   onAddressSelect,
   onOneTimeAddress,
 }: AddressSelectorProps) => {
-  const defaultTab = addresses.length > 0 ? "saved" : "new";
+  const [activeTab, setActiveTab] = useState<"saved" | "new">(
+    addresses.length > 0 ? "saved" : "new",
+  );
 
   const form = useForm<OneTimeFormValues>({
     resolver: zodResolver(oneTimeSchema),
@@ -68,6 +71,8 @@ export const AddressSelector = ({
   const handleDialogOpenChange = (open: boolean) => {
     if (!open) {
       form.reset();
+    } else {
+      setActiveTab(addresses.length > 0 ? "saved" : "new");
     }
     onOpenChange(open);
   };
@@ -92,13 +97,18 @@ export const AddressSelector = ({
           <DialogHeader>
             <DialogTitle>送貨資訊</DialogTitle>
             <DialogDescription asChild>
-              <VisuallyHidden.Root>請選擇已儲存的地址或填寫一次性地址</VisuallyHidden.Root>
+              <VisuallyHidden.Root>
+                請選擇已儲存的地址或填寫一次性地址
+              </VisuallyHidden.Root>
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs defaultValue={defaultTab}>
+          <Tabs
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as "saved" | "new")}
+          >
             <TabsList className="mb-4 w-full">
-              <TabsTrigger value="saved" className="flex-1" disabled={addresses.length === 0}>
+              <TabsTrigger value="saved" className="flex-1">
                 選擇地址
               </TabsTrigger>
               <TabsTrigger value="new" className="flex-1">
@@ -107,6 +117,17 @@ export const AddressSelector = ({
             </TabsList>
 
             <TabsContent value="saved">
+              {addresses.length === 0 ? (
+                <div className="py-6 text-center text-sm text-neutral-500">
+                  尚未建立任何地址。
+                  <a
+                    href="/account/address"
+                    className="ml-1 text-fuchsia-600 hover:underline"
+                  >
+                    前往建立地址
+                  </a>
+                </div>
+              ) : (
               <RadioGroup
                 value={selectedAddress?.id || ""}
                 onValueChange={onAddressSelect}
@@ -124,7 +145,10 @@ export const AddressSelector = ({
                         className="mt-1"
                       />
                       <div className="flex-1">
-                        <Label htmlFor={address.id} className="block cursor-pointer">
+                        <Label
+                          htmlFor={address.id}
+                          className="block cursor-pointer"
+                        >
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="text-base font-medium">
                               {address.recipientName}
@@ -147,6 +171,7 @@ export const AddressSelector = ({
                   </div>
                 ))}
               </RadioGroup>
+              )}
             </TabsContent>
 
             <TabsContent value="new">

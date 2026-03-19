@@ -9,13 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { CollectionProps } from "@/types/collections";
 
-const Hero = ({ collections }: CollectionProps) => {
-  const newArrival = collections.find((col) => col.name === "新品上市");
-  const sales = collections.find((col) => col.name === "特價商品");
-  const oea = collections.find((col) => col.name === "Oea選品");
-
+const Hero = () => {
   return (
     <section className="relative mx-auto h-100 w-full md:h-125 lg:h-175">
       <Carousel
@@ -36,7 +31,9 @@ const Hero = ({ collections }: CollectionProps) => {
                 alt="商品banner"
                 className="object-cover shadow-xl"
                 fill
+                sizes="100vw"
                 priority
+                fetchPriority="high"
                 quality={60}
               />
               <div className="absolute top-40 left-5 max-w-xs md:top-30 md:left-10 lg:top-1/3 lg:left-20 lg:max-w-md">
@@ -53,7 +50,9 @@ const Hero = ({ collections }: CollectionProps) => {
                 </p>
 
                 <Button asChild className="mt-4 w-fit">
-                  <Link href={`/collections/${newArrival?.id}/全部`}>
+                  <Link
+                    href={`/collections/5e7ed709-58cc-42a2-b302-835fa9b39349/全部`}
+                  >
                     立即探索
                     <ArrowRight className="ml-2 size-5 text-neutral-100" />
                   </Link>
@@ -67,9 +66,9 @@ const Hero = ({ collections }: CollectionProps) => {
               <Image
                 src="/banner2.jpg"
                 alt="商品banner"
+                sizes="100vw"
                 className="object-cover shadow-xl"
                 fill
-                priority
                 quality={60}
               />
               <div className="absolute top-40 left-5 max-w-xs md:top-30 md:left-10 lg:top-1/3 lg:left-20 lg:max-w-md">
@@ -89,7 +88,9 @@ const Hero = ({ collections }: CollectionProps) => {
                   精選商品最低 5 折起，數量有限，售完為止。
                 </p>
                 <Button asChild className="mt-4 w-fit">
-                  <Link href={`/collections/${sales?.id}/全部`}>
+                  <Link
+                    href={`/collections/22f95d0c-9d26-4b96-b832-af3783402017/全部`}
+                  >
                     馬上搶購
                     <ArrowRight className="ml-2 size-5 text-neutral-100" />
                   </Link>
@@ -103,9 +104,9 @@ const Hero = ({ collections }: CollectionProps) => {
               <Image
                 src="/banner3.jpg"
                 alt="商品banner"
+                sizes="100vw"
                 className="object-cover shadow-xl"
                 fill
-                priority
                 quality={60}
               />
               <div className="absolute top-40 left-5 max-w-xs md:top-30 md:left-10 lg:top-1/3 lg:left-20 lg:max-w-md">
@@ -122,7 +123,9 @@ const Hero = ({ collections }: CollectionProps) => {
                 </p>
 
                 <Button asChild className="mt-4 w-fit">
-                  <Link href={`/collections/${oea?.id}/全部`}>
+                  <Link
+                    href={`/collections/58f5730b-14e5-4845-a803-56304e8bc293/全部`}
+                  >
                     了解更多
                     <ArrowRight className="ml-2 size-5 text-neutral-100" />
                   </Link>

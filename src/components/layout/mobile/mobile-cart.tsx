@@ -48,6 +48,7 @@ const MobileCart = () => {
         <Button
           className="relative bg-transparent px-3 py-1 shadow-transparent"
           size={"none"}
+          aria-label="查看購物車"
         >
           <ShoppingCart className="size-5 text-neutral-800" />
           {totalItems > 0 && (

@@ -31,7 +31,7 @@ const ProductDialogItem = ({ productId }: { productId: string }) => {
   return (
     <Dialog>
       <DialogTrigger className="cursor-pointer" asChild>
-        <button className="cursor-pointer">
+        <button className="cursor-pointer" aria-label="檢視商品">
           <ShoppingCart className="size-6 text-neutral-800 hover:text-neutral-600" />
         </button>
       </DialogTrigger>

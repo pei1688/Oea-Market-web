@@ -28,12 +28,8 @@ export const NavLinks = async ({ collections }: NavLinksProps) => {
 
   return (
     <>
-      {/* 桌面版導航 */}
       <div className="hidden lg:flex lg:w-full lg:items-center lg:justify-between">
-        {/* 左邊佔位 - 保持平衡 */}
         <div className="flex-1"></div>
-
-        {/* 中間的導航連結 */}
         <nav className="ae-caption flex items-center gap-8">
           {filterCollection?.map((col) => (
             <Link
@@ -64,26 +60,34 @@ export const NavLinks = async ({ collections }: NavLinksProps) => {
 
           <NavigationMenu>
             <NavigationMenuList className="gap-4">
-              <NavbarCart />
+              <NavigationMenuItem>
+                <NavbarCart />
+              </NavigationMenuItem>
+
               {session ? (
                 <NavigationMenuItem>
                   <NavbarUser session={session} />
                 </NavigationMenuItem>
               ) : (
-                <div className="flex gap-3">
-                  <Link
-                    href="/sign-in"
-                    className="ae-caption inline-flex items-center justify-center rounded-md bg-fuchsia-600 px-4 py-1 text-neutral-100 transition-opacity hover:opacity-80"
-                  >
-                    登入
-                  </Link>
-                  <Link
-                    href="/sign-up"
-                    className="ae-caption inline-flex items-center justify-center rounded-md border border-fuchsia-600 px-4 py-1 text-fuchsia-800 transition-opacity hover:opacity-80"
-                  >
-                    註冊
-                  </Link>
-                </div>
+                <>
+                  <NavigationMenuItem>
+                    <Link
+                      href="/sign-in"
+                      className="ae-caption inline-flex items-center justify-center rounded-md bg-fuchsia-600 px-4 py-1 text-neutral-100 transition-opacity hover:opacity-80"
+                    >
+                      登入
+                    </Link>
+                  </NavigationMenuItem>
+
+                  <NavigationMenuItem>
+                    <Link
+                      href="/sign-up"
+                      className="ae-caption inline-flex items-center justify-center rounded-md border border-fuchsia-600 px-4 py-1 text-fuchsia-800 transition-opacity hover:opacity-80"
+                    >
+                      註冊
+                    </Link>
+                  </NavigationMenuItem>
+                </>
               )}
             </NavigationMenuList>
           </NavigationMenu>

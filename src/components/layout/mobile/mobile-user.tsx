@@ -77,6 +77,7 @@ const MobileUser = ({
         size={"none"}
         className="justify-start py-2 text-fuchsia-800 hover:text-fuchsia-600"
         onClick={handleSignOut}
+        aria-label="登出帳號"
       >
         <LogOut className="mr-2 size-4" /> 登出帳號
       </Button>

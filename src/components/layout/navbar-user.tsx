@@ -36,7 +36,12 @@ const NavbarUser = ({ session }: { session: Session | null }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="none" size="icon" className="size-12">
+        <Button
+          aria-label="開啟用戶選單"
+          variant="none"
+          size="icon"
+          className="size-12"
+        >
           {" "}
           <svg
             viewBox="0 0 24 24"
@@ -58,7 +63,6 @@ const NavbarUser = ({ session }: { session: Session | null }) => {
               strokeLinejoin="round"
             ></path>
           </svg>
-          <span className="sr-only">開啟用戶選單</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

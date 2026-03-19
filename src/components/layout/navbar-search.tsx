@@ -76,12 +76,14 @@ const NavbarSearch = () => {
               <div className="absolute right-3 flex items-center gap-2">
                 <button
                   type="submit"
+                  aria-label="搜尋商品"
                   className="cursor-pointer rounded-full bg-transparent p-2 text-neutral-800 transition-colors hover:bg-neutral-100"
                 >
                   <Search className="size-4" />
                 </button>
                 <button
                   type="button"
+                  aria-label="關閉搜尋"
                   onClick={() => setIsMobileSearchOpen(false)}
                   className="rounded-full bg-transparent p-2 text-neutral-800 transition-colors hover:bg-neutral-100"
                 >

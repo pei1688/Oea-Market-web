@@ -7,13 +7,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import {
-  NavigationMenuContent,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
-} from "../ui/navigation-menu";
-import { Label } from "../ui/label";
-import { Separator } from "../ui/separator";
 import Image from "next/image";
 import { Button } from "../ui/button";
 import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
@@ -48,14 +41,18 @@ const NavbarCart = () => {
     <DropdownMenu>
       {/* 使用 asChild 確保 Trigger 是 Button，並解決 ARIA 錯誤 */}
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="relative size-9">
+        <Button
+          aria-label="查看購物車"
+          variant="ghost"
+          size="icon"
+          className="relative size-9"
+        >
           <ShoppingCart className="size-6 transition-colors hover:text-neutral-600" />
           {totalItems > 0 && (
             <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-fuchsia-500 text-[10px] font-bold text-white">
               {totalItems}
             </span>
           )}
-          <span className="sr-only">開啟購物車預覽</span>
         </Button>
       </DropdownMenuTrigger>
 

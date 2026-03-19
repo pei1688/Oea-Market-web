@@ -9,11 +9,7 @@ export interface CartContentProps {
   profile: ProfileWithAddress;
 }
 
-export interface OneTimeAddressData {
-  recipientName: string;
-  phoneNumber: string;
-  zipCode: string;
-  county: string;
-  district: string;
-  streetAddress: string;
-}
+export type OneTimeAddressData = Pick<
+  Address,
+  "recipientName" | "phoneNumber" | "zipCode" | "county" | "district" | "streetAddress"
+>;

@@ -2,6 +2,7 @@
 import { useState, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useInfiniteFilteredProductsByCollection } from "@/services/products";
+import { type InfiniteFilteredProductsResult } from "@/action/product";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import PageHeader from "@/modules/category-products/components/page-header";
 import Toolbar from "@/modules/category-products/components/toolbar";
@@ -22,11 +23,13 @@ const MobileFilters = dynamic(
 interface CategoryProductsContentProps {
   collectionId: string;
   categorySlug?: string;
+  initialData?: InfiniteFilteredProductsResult;
 }
 
 const CategoryProductsContent = ({
   collectionId,
   categorySlug,
+  initialData,
 }: CategoryProductsContentProps) => {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -56,6 +59,7 @@ const CategoryProductsContent = ({
   } = useInfiniteFilteredProductsByCollection({
     collectionId,
     ...filterParams,
+    initialData,
   });
 
   // 設置無限滾動

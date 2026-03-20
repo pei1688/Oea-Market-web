@@ -40,6 +40,7 @@ const MobileCart = () => {
     }
     updateQuantity(itemId, newQuantity);
   };
+  console.log(items);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -60,7 +61,7 @@ const MobileCart = () => {
       </SheetTrigger>
 
       {/* drawer content */}
-      <SheetContent side="top" className="h-full px-4 sm:max-w-md">
+      <SheetContent side="right" className="h-full px-4 sm:max-w-md border-transparent">
         <SheetHeader>
           <SheetTitle>您的購物車 ({totalItems})</SheetTitle>
         </SheetHeader>
@@ -72,11 +73,11 @@ const MobileCart = () => {
             <span className="text-neutral-500">尚未有商品</span>
           </div>
         ) : (
-          <div className="max-h-[70vh] space-y-4 overflow-y-auto rounded-lg border pr-2">
+          <div className="max-h-[70vh] space-y-4 overflow-y-auto pr-2">
             {items.map((item) => (
               <div key={item.id} className="flex items-center space-x-3 p-3">
                 <Link
-                  href={`/product/${item.id.split("_")[0]}`}
+                  href={`/collections/${item.collectionId}/全部/product/${item.id.split("_")[0]}`}
                   onClick={() => setOpen(false)}
                   className="flex items-center gap-3"
                 >

@@ -1,9 +1,7 @@
 import { getCollectionById, getCollections } from "@/action/collection";
 import { getInfiniteFilteredProductsByCollection } from "@/action/product";
 import PageBreadcrumb from "@/components/layout/page-breadcrumb";
-import Spinner from "@/components/spinner";
 import CategoryProductsContent from "@/modules/category-products/ui/view/category-products-content";
-import { Suspense } from "react";
 import { type Metadata } from "next";
 export const revalidate = 300;
 

@@ -11,12 +11,18 @@ export interface StockValidation {
   currentStock: number;
 }
 
+interface StockValidationOverrides {
+  quantity?: number;
+}
+
 export const useStockValidation = (
   productId: string,
-  variantInfo: VariantInfo
+  variantInfo: VariantInfo,
+  overrides?: StockValidationOverrides,
 ) => {
-  const { quantity } = useProductDetailStore();
+  const { quantity: storeQuantity } = useProductDetailStore();
   const { getCartItemByVariantIds } = useCartStore();
+  const quantity = overrides?.quantity ?? storeQuantity;
 
   const stockValidation = useMemo((): StockValidation => {
     const existingCartItem = getCartItemByVariantIds(
@@ -25,15 +31,15 @@ export const useStockValidation = (
       variantInfo.spec2Id,
     );
 
-    const cartQuantity = existingCartItem ? existingCartItem.quantity : 0; // 目前購物車裡的數量
-    const totalQuantity = cartQuantity + quantity; // 加上這次用戶準備加進購物車的數量
-    const isExceeded = totalQuantity > variantInfo.stock; // 總數是否超出庫存
-    
+    const cartQuantity = existingCartItem ? existingCartItem.quantity : 0;
+    const totalQuantity = cartQuantity + quantity;
+    const isExceeded = totalQuantity > variantInfo.stock;
+
     return {
       isExceeded,
       cartQuantity,
       totalQuantity,
-      availableQuantity: variantInfo.stock - cartQuantity, // 還能加幾個
+      availableQuantity: variantInfo.stock - cartQuantity,
       currentStock: variantInfo.stock,
     };
   }, [productId, variantInfo, quantity, getCartItemByVariantIds]);

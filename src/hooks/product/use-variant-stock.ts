@@ -10,11 +10,19 @@ export interface VariantInfo {
   currentSpec2: any | null;
 }
 
+interface VariantStockOverrides {
+  selectedVariants?: Record<string, string>;
+  selectedSpec2?: Record<string, string>;
+}
+
 export const useVariantStock = (
   product: ProductDetailProps["product"],
-  groupedVariants: Record<string, any[]>
+  groupedVariants: Record<string, any[]>,
+  overrides?: VariantStockOverrides,
 ) => {
-  const { selectedVariants, selectedSpec2 } = useProductDetailStore();
+  const store = useProductDetailStore();
+  const selectedVariants = overrides?.selectedVariants ?? store.selectedVariants;
+  const selectedSpec2 = overrides?.selectedSpec2 ?? store.selectedSpec2;
 
   const isAllVariantsSelected = useMemo(() => {
     const allSpec1Selected = Object.keys(groupedVariants).every(
@@ -41,7 +49,6 @@ export const useVariantStock = (
   }, [selectedVariants, selectedSpec2, groupedVariants, product.variants]);
 
   const variantInfo = useMemo((): VariantInfo => {
-    // 如果沒有變體，返回基礎產品庫存
     if (Object.keys(groupedVariants).length === 0) {
       return {
         stock: product.stock || 0,
@@ -52,7 +59,6 @@ export const useVariantStock = (
       };
     }
 
-    // 如果沒有選擇所有必要的變體
     if (!isAllVariantsSelected) {
       return {
         stock: 0,
@@ -82,7 +88,6 @@ export const useVariantStock = (
     let currentSpec2 = null;
     let finalStock = currentVariant.stock || 0;
 
-    // 如果有選擇 spec2，使用 spec2 的庫存
     if (selectedSpec2Id && currentVariant.spec2Combinations) {
       currentSpec2 = currentVariant.spec2Combinations.find(
         (spec2) => spec2.id === selectedSpec2Id,

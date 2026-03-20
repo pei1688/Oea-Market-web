@@ -110,12 +110,6 @@ const ProductDialogDetail = ({ product, collectionId }: ProductDetailProps) => {
 
   // 變體、庫存處理
   const { groupedVariants } = useProductVariants(product);
-  const { variantInfo, isAllVariantsSelected } = useVariantStock(
-    product,
-    groupedVariants,
-  );
-  const stockValidation = useStockValidation(product.id, variantInfo);
-  const priceInfo = useProductPrice(product, variantInfo);
 
   // 本地狀態 — 初始化一次於 mount，不與主頁面 store 共用
   const [currentImage, setCurrentImage] = useState(
@@ -128,6 +122,14 @@ const ProductDialogDetail = ({ product, collectionId }: ProductDetailProps) => {
     () => computeDefaults(product, groupedVariants).selectedSpec2,
   );
   const [quantity, setQuantity] = useState(1);
+
+  const { variantInfo, isAllVariantsSelected } = useVariantStock(
+    product,
+    groupedVariants,
+    { selectedVariants, selectedSpec2 },
+  );
+  const stockValidation = useStockValidation(product.id, variantInfo, { quantity });
+  const priceInfo = useProductPrice(product, variantInfo);
 
   // 處理變體選擇
   const handleVariantSelect = (specName: string, variant: any) => {
@@ -254,6 +256,8 @@ const ProductDialogDetail = ({ product, collectionId }: ProductDetailProps) => {
               product={product}
               onVariantSelect={handleVariantSelect}
               onSpec2Select={handleSpec2Select}
+              selectedVariants={selectedVariants}
+              selectedSpec2={selectedSpec2}
             />
           </div>
           <QuantitySelector

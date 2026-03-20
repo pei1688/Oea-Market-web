@@ -7,6 +7,8 @@ interface VariantSelectorProps {
   product: ProductDetailProps["product"];
   onVariantSelect: (specName: string, variant: any) => void;
   onSpec2Select: (variantId: string, spec2: any) => void;
+  selectedVariants?: Record<string, string>;
+  selectedSpec2?: Record<string, string>;
 }
 
 export const VariantSelector = ({
@@ -14,8 +16,12 @@ export const VariantSelector = ({
   product,
   onVariantSelect,
   onSpec2Select,
+  selectedVariants: propVariants,
+  selectedSpec2: propSpec2,
 }: VariantSelectorProps) => {
-  const { selectedVariants, selectedSpec2 } = useProductDetailStore();
+  const store = useProductDetailStore();
+  const selectedVariants = propVariants ?? store.selectedVariants;
+  const selectedSpec2 = propSpec2 ?? store.selectedSpec2;
 
   return (
     <div className="ae-des-content ae-body mt-10 space-y-4">

@@ -197,12 +197,13 @@ export async function getInfiniteFilteredProductsByCollection({
         break;
     }
 
-    baseWhere.id = { lt: cursor };
+    const isAscending = ["price-low", "name-asc", "oldest"].includes(sortBy);
+    baseWhere.id = isAscending ? { gt: cursor } : { lt: cursor };
     orderBy = orderBy.map((order) =>
-      "id" in order ? { id: "desc" } : order,
+      "id" in order ? { id: isAscending ? "asc" : "desc" } : order,
     );
     if (!orderBy.some((order) => "id" in order)) {
-      orderBy.push({ id: "desc" });
+      orderBy.push({ id: isAscending ? "asc" : "desc" });
     }
 
     const [collection, products, totalCount, filters] = await Promise.all([

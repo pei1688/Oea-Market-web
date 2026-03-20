@@ -5,11 +5,13 @@ import { ProductListItem } from "@/types/product/product";
 import dynamic from "next/dynamic";
 import { memo } from "react";
 import { calculateDiscountedPrice } from "@/lib/price";
+import cloudinaryLoader from "@/lib/cloudinary-loader";
 
 interface ProductItemProps {
   product: ProductListItem;
   collectionId?: string;
   categorySlug?: string;
+  index?: number;
 }
 
 const ProductDialogItem = dynamic(
@@ -23,11 +25,7 @@ const ProductDialogItem = dynamic(
 );
 
 const ProductItem = memo(
-  ({
-    product,
-    collectionId,
-    categorySlug,
-  }: ProductItemProps) => {
+  ({ product, collectionId, categorySlug, index }: ProductItemProps) => {
     const discountInfo = calculateDiscountedPrice(
       product.price,
       product.isOnSale,
@@ -51,13 +49,14 @@ const ProductItem = memo(
         <Link href={href} className="flex h-full flex-col">
           <div className="relative h-[80%] w-full">
             <Image
+              loader={cloudinaryLoader}
               src={product.imgUrl?.[0] || "/default-product.png"}
               alt={product.name}
               className="rounded-t-sm object-cover duration-300"
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              sizes="(max-width: 640px) 100vw,(max-width: 1024px) 50vw,(max-width: 1536px) 33vw,25vw"
               fill
-              quality={60}
-              priority
+              priority={index === undefined || index < 4}
+              loading={index !== undefined && index >= 4 ? "lazy" : undefined}
             />
           </div>
 
@@ -81,7 +80,10 @@ const ProductItem = memo(
                   <p className="font-semibold">NT$ {product.price}</p>
                 )}
               </div>
-              <ProductDialogItem productId={product.id} collectionId={collectionId} />
+              <ProductDialogItem
+                productId={product.id}
+                collectionId={collectionId}
+              />
             </div>
           </div>
         </Link>

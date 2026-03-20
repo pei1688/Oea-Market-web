@@ -25,12 +25,13 @@ const ProductGrid = ({ products, isPending, collectionId, categorySlug }: Produc
 
   return (
     <div className="grid grid-cols-2 gap-4 transition-all duration-300 md:grid-cols-3 lg:grid-cols-4">
-      {products.map((product) => (
+      {products.map((product, index) => (
         <ProductItem
           product={product}
           key={product.id}
           collectionId={collectionId}
           categorySlug={categorySlug}
+          index={index}
         />
       ))}
     </div>

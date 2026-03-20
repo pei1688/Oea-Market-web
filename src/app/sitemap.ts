@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 import { getCollections } from "@/action/collection";
-import { getProducts } from "@/action/product";
+import { getProductsForSitemap } from "@/action/product";
 
 const BASE_URL = "https://oea-market-web.vercel.app";
 const STATIC_DATE = new Date("2025-01-01");
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, collections] = await Promise.all([
-    getProducts().then((p) => p ?? []),
+    getProductsForSitemap(),
     getCollections(),
   ]);
 

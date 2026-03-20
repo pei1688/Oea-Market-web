@@ -7,7 +7,7 @@ const Navbar = async () => {
   const collections = await getCollectionsWithCategory();
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-neutral-100/40 shadow-sm backdrop-blur-lg supports-backdrop-filter:bg-neutral-100/40">
+    <header className="sticky top-0 z-99 w-full bg-neutral-100/40 shadow-sm backdrop-blur-lg supports-backdrop-filter:bg-neutral-100/40">
       <nav className="container mx-auto max-w-7xl px-3 md:px-5">
         <div className="flex h-16 items-center">
           {/* Logo*/}

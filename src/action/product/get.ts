@@ -110,3 +110,33 @@ const _getProductIds = unstable_cache(
 export async function getProductIds() {
   return _getProductIds();
 }
+
+// ── getProductsForSitemap ─────────────────────────────────────
+
+const _getProductsForSitemap = unstable_cache(
+  async () => {
+    return prisma.product.findMany({
+      select: {
+        id: true,
+        updatedAt: true,
+        productCollections: {
+          take: 1,
+          select: {
+            collection: { select: { id: true } },
+          },
+        },
+      },
+    });
+  },
+  ["products-for-sitemap"],
+  { tags: [CACHE_TAGS.products], revalidate: 300 }, // consistent with other product caches in this file
+);
+
+export async function getProductsForSitemap() {
+  try {
+    return await _getProductsForSitemap();
+  } catch (error) {
+    console.log("商品 sitemap 獲取錯誤", error);
+    return [];
+  }
+}

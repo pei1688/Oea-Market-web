@@ -129,7 +129,7 @@ const _getProductsForSitemap = unstable_cache(
     });
   },
   ["products-for-sitemap"],
-  { tags: [CACHE_TAGS.products], revalidate: 300 }, // consistent with other product caches in this file
+  { tags: [CACHE_TAGS.products], revalidate: 300 }, 
 );
 
 export async function getProductsForSitemap() {

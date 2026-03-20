@@ -180,10 +180,9 @@ export const useInfiniteFilteredProductsByCollection = ({
     gcTime: 1000 * 60 * 10, // 10 分鐘回收
     retry: 1,
     refetchOnWindowFocus: false,
-    initialData: initialData
+    placeholderData: initialData
       ? { pages: [initialData], pageParams: [undefined] }
       : undefined,
-    initialDataUpdatedAt: initialData ? Date.now() : undefined,
   });
 
   // 合併並去重

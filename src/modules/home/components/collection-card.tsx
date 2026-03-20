@@ -1,5 +1,4 @@
 "use client";
-
 import CollectionItem from "@/modules/collection/components/collection-item";
 import { CollectionProps } from "@/types/collections";
 

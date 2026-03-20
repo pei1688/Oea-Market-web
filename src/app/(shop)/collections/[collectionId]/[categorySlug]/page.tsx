@@ -1,5 +1,5 @@
 import { getCollectionById, getCollections } from "@/action/collection";
-import { getFilteredProductsByCollection } from "@/action/product";
+import { getInfiniteFilteredProductsByCollection } from "@/action/product";
 import PageBreadcrumb from "@/components/layout/page-breadcrumb";
 import Spinner from "@/components/spinner";
 import CategoryProductsContent from "@/modules/category-products/ui/view/category-products-content";
@@ -31,9 +31,7 @@ interface Props {
   params: Promise<{ collectionId: string; categorySlug: string }>;
 }
 
-export async function generateMetadata({
-  params,
-}: Props): Promise<Metadata> {
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { collectionId } = await params;
   const collection = await getCollectionById(collectionId);
   const name = collection?.name ?? "商品系列";
@@ -53,7 +51,7 @@ export async function generateMetadata({
 export default async function CategoryProductsPage({ params }: Props) {
   const { collectionId, categorySlug } = await params;
 
-  const initialData = await getFilteredProductsByCollection({
+  const initialData = await getInfiniteFilteredProductsByCollection({
     collectionId,
     categorySlug: decodeURIComponent(categorySlug),
   });
@@ -70,7 +68,7 @@ export default async function CategoryProductsPage({ params }: Props) {
 
   const { collectionInfo } = initialData;
   return (
-    <div className="mx-auto max-w-7xl px-4 ">
+    <div className="mx-auto max-w-7xl px-4">
       <div className="mb-6">
         {collectionInfo && (
           <PageBreadcrumb
@@ -85,12 +83,12 @@ export default async function CategoryProductsPage({ params }: Props) {
           />
         )}
       </div>
-      <Suspense fallback={<Spinner />}>
-        <CategoryProductsContent
-          collectionId={collectionId}
-          categorySlug={categorySlug}
-        />
-      </Suspense>
+
+      <CategoryProductsContent
+        collectionId={collectionId}
+        categorySlug={categorySlug}
+        initialData={initialData}
+      />
     </div>
   );
 }

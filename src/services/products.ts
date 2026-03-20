@@ -78,8 +78,10 @@ export const useRelatedProducts = ({
 };
 
 //🔸 使用後端過濾的產品查詢
-interface UseFilteredProductsOptions
-  extends Omit<ProductFilterParams, "collectionId"> {
+interface UseFilteredProductsOptions extends Omit<
+  ProductFilterParams,
+  "collectionId"
+> {
   collectionId: string;
   enabled?: boolean;
 }
@@ -121,10 +123,7 @@ export const useFilteredProductsByCollection = ({
     enabled: enabled && !!collectionId,
     staleTime: 1000 * 60 * 5, // 5分鐘緩存
     gcTime: 1000 * 60 * 10, // 10分鐘垃圾回收
-    retry: (failureCount, error) => {
-      // 對於網絡錯誤重試，但不超過2次
-      return failureCount < 2;
-    },
+    retry: 1,
   });
 
   return {
@@ -135,10 +134,13 @@ export const useFilteredProductsByCollection = ({
 };
 
 //🔸 無限滾動的產品查詢
-interface UseInfiniteFilteredProductsOptions
-  extends Omit<InfiniteProductFilterParams, "collectionId" | "cursor"> {
+interface UseInfiniteFilteredProductsOptions extends Omit<
+  InfiniteProductFilterParams,
+  "collectionId" | "cursor"
+> {
   collectionId: string;
   enabled?: boolean;
+  initialData?: InfiniteFilteredProductsResult;
 }
 
 export const useInfiniteFilteredProductsByCollection = ({
@@ -149,6 +151,7 @@ export const useInfiniteFilteredProductsByCollection = ({
   sortBy,
   limit = 8,
   enabled = true,
+  initialData,
 }: UseInfiniteFilteredProductsOptions) => {
   const query = useInfiniteQuery({
     queryKey: [
@@ -175,9 +178,12 @@ export const useInfiniteFilteredProductsByCollection = ({
     enabled: enabled && !!collectionId,
     staleTime: 1000 * 60 * 5, // 5 分鐘快取
     gcTime: 1000 * 60 * 10, // 10 分鐘回收
-    retry: (failureCount) => failureCount < 2,
-    refetchOnMount: true,
+    retry: 1,
     refetchOnWindowFocus: false,
+    initialData: initialData
+      ? { pages: [initialData], pageParams: [undefined] }
+      : undefined,
+    initialDataUpdatedAt: initialData ? Date.now() : undefined,
   });
 
   // 合併並去重
@@ -203,6 +209,6 @@ export const useInfiniteFilteredProductsByCollection = ({
     totalCount,
     availableFilters,
     collectionInfo,
-    ...query, // 直接展開 react-query 的狀態 (isLoading, isError, error, fetchNextPage, hasNextPage, isFetchingNextPage)
+    ...query,
   };
 };

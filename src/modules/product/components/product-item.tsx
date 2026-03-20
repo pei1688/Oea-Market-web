@@ -53,7 +53,7 @@ const ProductItem = memo(
               src={product.imgUrl?.[0] || "/default-product.png"}
               alt={product.name}
               className="rounded-t-sm object-cover duration-300"
-              sizes="(max-width: 640px) 100vw,(max-width: 1024px) 50vw,(max-width: 1536px) 33vw,25vw"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               fill
               priority={index === undefined || index < 4}
               loading={index !== undefined && index >= 4 ? "lazy" : undefined}

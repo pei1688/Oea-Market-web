@@ -38,7 +38,7 @@ const ProductAlsoLike = ({
     <Carousel className="relative w-full">
       <CarouselPrevious className="absolute top-1/2 -left-12 hidden -translate-y-1/2 md:block" />
       <CarouselContent>
-        {products.map((pd) => (
+        {products.map((pd, index) => (
           <CarouselItem
             key={pd.id}
             className="max-w-xs basis-full sm:basis-1/2 lg:basis-1/3"
@@ -47,6 +47,7 @@ const ProductAlsoLike = ({
               product={pd}
               categorySlug="全部"
               collectionId={collectionId}
+              index={index}
             />
           </CarouselItem>
         ))}

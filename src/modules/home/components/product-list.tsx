@@ -16,12 +16,13 @@ const ProductList = async () => {
         <span className="ae-home-subTitle">新的代購商品上架囉!</span>
       </div>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-3 xl:grid-cols-4">
-        {collection.productCollections.slice(0, 8).map((pc) => (
+        {collection.productCollections.slice(0, 8).map((pc, index) => (
           <ProductItem
             product={pc.product}
             key={pc.id}
             collectionId={NEW_ARRIVALS_COLLECTION_ID}
             categorySlug="全部"
+            index={index}
           />
         ))}
       </div>

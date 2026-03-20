@@ -58,8 +58,8 @@ const SearchContent = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {results.products.map((product) => (
-                <ProductItem key={product.id} product={product} />
+              {results.products.map((product, index) => (
+                <ProductItem key={product.id} product={product} index={index} />
               ))}
             </div>
           )}

@@ -12,12 +12,11 @@ import {
 } from "@/hooks/product/use-product-stock";
 import { useProductVariants } from "@/hooks/product/use-product-variants";
 import { useCartStore } from "@/store/cart-store";
-import { useProductDetailStore } from "@/store/product-detail-store";
 import { ShoppingCart } from "lucide-react";
 import { QuantitySelector } from "../product-detail/quantity-selector";
 import { VariantSelector } from "../product-detail/variant-selector";
 import { toast } from "sonner";
-import { useCallback, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Spinner from "@/components/spinner";
 import { ProductDetailProps } from "@/types/product/product-detail";
@@ -26,6 +25,32 @@ import { useProductById } from "@/services/products";
 import { ProductDialogImage } from "./product-dialog-image";
 import { ProductDialogHeader } from "./product-dialog-header";
 import { ProductDialogActions } from "./product-dialog-actions";
+
+// ── 預設選擇計算 ──────────────────────────────────────────────
+
+function computeDefaults(
+  product: ProductDetailProps["product"],
+  groupedVariants: ReturnType<typeof useProductVariants>["groupedVariants"],
+) {
+  const selectedVariants: Record<string, string> = {};
+  const selectedSpec2: Record<string, string> = {};
+  let currentImage = product.imgUrl[0] || "";
+
+  Object.entries(groupedVariants).forEach(([specName, variants]) => {
+    if (variants && variants.length > 0) {
+      const first = variants[0];
+      selectedVariants[specName] = first.id;
+      if (first.spec1Image) currentImage = first.spec1Image;
+      if (first.spec2Combinations && first.spec2Combinations.length > 0) {
+        selectedSpec2[first.id] = first.spec2Combinations[0].id;
+      }
+    }
+  });
+
+  return { currentImage, selectedVariants, selectedSpec2 };
+}
+
+// ── 外層 Dialog 觸發器 ────────────────────────────────────────
 
 const ProductDialogItem = ({
   productId,
@@ -51,6 +76,8 @@ const ProductDialogItem = ({
   );
 };
 
+// ── 資料載入層 ────────────────────────────────────────────────
+
 const ProductDialogContentFetcher = ({
   productId,
   collectionId,
@@ -75,24 +102,13 @@ const ProductDialogContentFetcher = ({
   return <ProductDialogDetail product={product} collectionId={collectionId} />;
 };
 
+// ── 商品詳情（本地狀態，不共用全域 store）────────────────────
+
 const ProductDialogDetail = ({ product, collectionId }: ProductDetailProps) => {
   const router = useRouter();
   const { addItem } = useCartStore();
-  const {
-    currentImage,
-    selectedVariants,
-    selectedSpec2,
-    quantity,
-    currentProductId, // 獲取當前商品ID狀態
-    setCurrentImage,
-    setSelectedVariants,
-    setSelectedSpec2,
-    setQuantity,
-    setCurrentProductId, // 獲取設置商品ID的方法
-    initializeWithDefaults,
-  } = useProductDetailStore();
 
-  //變體、庫存的處裡
+  // 變體、庫存處理
   const { groupedVariants } = useProductVariants(product);
   const { variantInfo, isAllVariantsSelected } = useVariantStock(
     product,
@@ -101,78 +117,33 @@ const ProductDialogDetail = ({ product, collectionId }: ProductDetailProps) => {
   const stockValidation = useStockValidation(product.id, variantInfo);
   const priceInfo = useProductPrice(product, variantInfo);
 
-  // 生成預設變體選擇
-  const generateDefaultSelections = useCallback(() => {
-    const defaultVariants: Record<string, string> = {};
-    const defaultSpec2: Record<string, string> = {};
-    let defaultImage = product.imgUrl[0] || "";
-
-    // 為每個規格選擇第一個變體
-    Object.entries(groupedVariants).forEach(([specName, variants]) => {
-      if (variants.length > 0) {
-        const firstVariant = variants[0];
-        defaultVariants[specName] = firstVariant.id;
-
-        // 如果第一個變體有圖片，使用它作為預設圖片
-        if (firstVariant.spec1Image) {
-          defaultImage = firstVariant.spec1Image;
-        }
-
-        // 如果第一個變體有規格2，選擇第一個規格2
-        if (
-          firstVariant.spec2Combinations &&
-          firstVariant.spec2Combinations.length > 0
-        ) {
-          defaultSpec2[firstVariant.id] = firstVariant.spec2Combinations[0].id;
-        }
-      }
-    });
-
-    return { defaultVariants, defaultSpec2, defaultImage };
-  }, [product.imgUrl, groupedVariants]);
-
-  // 檢查並重置狀態 - 當商品ID變化時
-  useEffect(() => {
-    if (currentProductId !== product.id) {
-      // 商品變化，初始化預設選擇
-      const { defaultVariants, defaultSpec2, defaultImage } =
-        generateDefaultSelections();
-      initializeWithDefaults(defaultImage, defaultVariants, defaultSpec2);
-      setCurrentProductId(product.id);
-    } else if (!currentImage && product.imgUrl[0]) {
-      // 同一商品但沒有圖片，設置默認圖片
-      setCurrentImage(product.imgUrl[0]);
-    }
-  }, [
-    product.id,
-    product.imgUrl,
-    currentProductId,
-    currentImage,
-    generateDefaultSelections,
-    initializeWithDefaults,
-    setCurrentImage,
-    setCurrentProductId,
-  ]);
+  // 本地狀態 — 初始化一次於 mount，不與主頁面 store 共用
+  const [currentImage, setCurrentImage] = useState(
+    () => computeDefaults(product, groupedVariants).currentImage,
+  );
+  const [selectedVariants, setSelectedVariants] = useState(
+    () => computeDefaults(product, groupedVariants).selectedVariants,
+  );
+  const [selectedSpec2, setSelectedSpec2] = useState(
+    () => computeDefaults(product, groupedVariants).selectedSpec2,
+  );
+  const [quantity, setQuantity] = useState(1);
 
   // 處理變體選擇
   const handleVariantSelect = (specName: string, variant: any) => {
-    // 直接選擇變體，不允許取消選擇
     setSelectedVariants({
       ...selectedVariants,
       [specName]: variant.id,
     });
 
-    // 保留當前變體的規格2選擇，清除其他變體的規格2選擇
     const newSpec2: Record<string, string> = {};
     if (selectedSpec2[variant.id]) {
       newSpec2[variant.id] = selectedSpec2[variant.id];
     } else if (variant.spec2Combinations?.length > 0) {
-      // 如果沒有選擇規格2，自動選擇第一個
       newSpec2[variant.id] = variant.spec2Combinations[0].id;
     }
     setSelectedSpec2(newSpec2);
 
-    // 更新圖片
     if (variant.spec1Image) {
       setCurrentImage(variant.spec1Image);
     }
@@ -180,7 +151,6 @@ const ProductDialogDetail = ({ product, collectionId }: ProductDetailProps) => {
 
   // 處理規格2選擇
   const handleSpec2Select = (variantId: string, spec2: any) => {
-    // 直接選擇規格2，不允許取消選擇
     setSelectedSpec2({
       ...selectedSpec2,
       [variantId]: spec2.id,
@@ -250,16 +220,12 @@ const ProductDialogDetail = ({ product, collectionId }: ProductDetailProps) => {
 
   const handleAddToCart = () => {
     if (!validateSelection()) return;
-
-    const cartItem = createCartItem();
-    addItem(cartItem);
+    addItem(createCartItem());
   };
 
   const handleBuyNow = (): void => {
     if (!validateSelection()) return;
-
-    const cartItem = createCartItem();
-    addItem(cartItem);
+    addItem(createCartItem());
     router.push("/cart");
   };
 

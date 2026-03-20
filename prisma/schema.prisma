@@ -33,6 +33,10 @@ model Product {
   updatedAt DateTime @updatedAt
 
   @@index([categoryId])
+  @@index([createdAt, id])
+  @@index([price, id])
+  @@index([name, id])
+  @@index([brand])
   @@map("Product")
 }
 

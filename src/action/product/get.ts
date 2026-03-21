@@ -2,7 +2,7 @@
 
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { productInclude } from "@/lib/prisma-includes";
+import { productInclude, productListSelect } from "@/lib/prisma-includes";
 import { CACHE_TAGS } from "@/lib/cache-keys";
 
 // ── getProducts ──────────────────────────────────────────────
@@ -47,7 +47,7 @@ export async function getRelatedProducts(
     },
     skip,
     take: limit,
-    include: productInclude,
+    select: productListSelect,
   });
 
   return related;

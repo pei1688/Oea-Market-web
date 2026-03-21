@@ -3,7 +3,7 @@
 import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
-import { productInclude } from "@/lib/prisma-includes";
+import { productListSelect } from "@/lib/prisma-includes";
 import { getCollectionInfo, getAvailableFilters } from "@/lib/cached-queries";
 import { CACHE_TAGS } from "@/lib/cache-keys";
 
@@ -87,7 +87,7 @@ const _getFilteredProductsByCollection = unstable_cache(
         getCollectionInfo(collectionId),
         prisma.product.findMany({
           where: baseWhere,
-          include: productInclude,
+          select: productListSelect,
           orderBy,
           skip,
           take: limit,

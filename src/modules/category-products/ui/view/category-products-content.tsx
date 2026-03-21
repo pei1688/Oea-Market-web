@@ -1,5 +1,5 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useInfiniteFilteredProductsByCollection } from "@/services/products";
 import { type InfiniteFilteredProductsResult } from "@/action/product";
@@ -8,11 +8,6 @@ import PageHeader from "@/modules/category-products/components/page-header";
 import Toolbar from "@/modules/category-products/components/toolbar";
 import ProductGrid from "@/modules/category-products/components/product-grid";
 import dynamic from "next/dynamic";
-import {
-  buildClearedFilters,
-  buildUpdatedFilters,
-  buildUpdatedSort,
-} from "@/lib/filter";
 import DesktopFilters from "../../components/desktop-filters";
 import { Spinner } from "@/components/spinner";
 
@@ -20,10 +15,24 @@ const MobileFilters = dynamic(
   () => import("@/modules/category-products/components/mobile-filters"),
   { ssr: false },
 );
+
 interface CategoryProductsContentProps {
   collectionId: string;
   categorySlug?: string;
   initialData?: InfiniteFilteredProductsResult;
+}
+
+// 從 localFilters 建構 URL query string（不依賴 searchParams，避免 stale URL 問題）
+function buildUrlFromFilters(filters: {
+  categories: string[];
+  brands: string[];
+  sortBy: string;
+}): string {
+  const params = new URLSearchParams();
+  if (filters.categories.length > 0) params.set("categories", filters.categories.join(","));
+  if (filters.brands.length > 0) params.set("brands", filters.brands.join(","));
+  if (filters.sortBy !== "newest") params.set("sortBy", filters.sortBy);
+  return params.toString();
 }
 
 const CategoryProductsContent = ({
@@ -36,17 +45,23 @@ const CategoryProductsContent = ({
   const pathname = usePathname();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // 解析 URL 參數
-  const filterParams = useMemo(() => {
-    const categories =
-      searchParams.get("categories")?.split(",").filter(Boolean) || [];
-    const brands = searchParams.get("brands")?.split(",").filter(Boolean) || [];
-    const sortBy = searchParams.get("sortBy") || "newest";
+  // Filter 本地狀態：初始值從 URL 讀取，之後以 local state 為主
+  const [localFilters, setLocalFilters] = useState({
+    categories: searchParams.get("categories")?.split(",").filter(Boolean) || [],
+    brands: searchParams.get("brands")?.split(",").filter(Boolean) || [],
+    sortBy: searchParams.get("sortBy") || "newest",
+  });
 
-    return { categorySlug, categories, brands, sortBy, limit: 8 };
-  }, [searchParams, categorySlug]);
+  // 同步瀏覽器 back/forward：URL 從外部變化時更新 local state
+  useEffect(() => {
+    setLocalFilters({
+      categories: searchParams.get("categories")?.split(",").filter(Boolean) || [],
+      brands: searchParams.get("brands")?.split(",").filter(Boolean) || [],
+      sortBy: searchParams.get("sortBy") || "newest",
+    });
+  }, [searchParams]);
 
-  // 獲取無限滾動的產品數據
+  // 獲取無限滾動的產品數據（用 localFilters，點擊後立即 fetch）
   const {
     products,
     totalCount,
@@ -54,12 +69,15 @@ const CategoryProductsContent = ({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-
     isError,
     isFetching,
   } = useInfiniteFilteredProductsByCollection({
     collectionId,
-    ...filterParams,
+    categorySlug,
+    categories: localFilters.categories,
+    brands: localFilters.brands,
+    sortBy: localFilters.sortBy,
+    limit: 8,
     initialData,
   });
 
@@ -70,26 +88,36 @@ const CategoryProductsContent = ({
     fetchNextPage,
   });
 
-  // 更新過濾器
+  // 更新過濾器：立即更新 local state，背景同步 URL
   const updateFilter = (
     type: "categories" | "brands",
     value: string,
     checked: boolean,
   ) => {
-    const query = buildUpdatedFilters(searchParams, type, value, checked);
-    router.push(`${pathname}?${query}`);
+    const current = localFilters[type];
+    const updated = checked
+      ? [...current, value]
+      : current.filter((v) => v !== value);
+    const newFilters = { ...localFilters, [type]: updated };
+    setLocalFilters(newFilters);
+    const query = buildUrlFromFilters(newFilters);
+    router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
   };
 
   // 更新排序
   const updateSort = (sortBy: string) => {
-    const query = buildUpdatedSort(searchParams, sortBy);
-    router.push(`${pathname}?${query}`);
+    const newFilters = { ...localFilters, sortBy };
+    setLocalFilters(newFilters);
+    const query = buildUrlFromFilters(newFilters);
+    router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
   };
 
-  // 清除所有過濾器
+  // 清除所有過濾器（保留排序）
   const clearFilters = () => {
-    const query = buildClearedFilters(filterParams);
-    router.push(`${pathname}${query ? `?${query}` : ""}`);
+    const newFilters = { categories: [], brands: [], sortBy: localFilters.sortBy };
+    setLocalFilters(newFilters);
+    const query = buildUrlFromFilters(newFilters);
+    router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
   };
 
   if (isError) {
@@ -109,13 +137,13 @@ const CategoryProductsContent = ({
           totalCount={totalCount}
           isPending={isFetching}
           activeFilters={{
-            categories: filterParams.categories,
-            brands: filterParams.brands,
+            categories: localFilters.categories,
+            brands: localFilters.brands,
           }}
         />
         {/* 上方工具欄 */}
         <Toolbar
-          sortBy={filterParams.sortBy}
+          sortBy={localFilters.sortBy}
           onSortChange={updateSort}
           onShowMobileFilters={() => setShowMobileFilters(true)}
         />
@@ -124,7 +152,7 @@ const CategoryProductsContent = ({
       <div className="flex gap-8">
         {/* 左側過濾欄 - 桌面版 */}
         <DesktopFilters
-          filterParams={filterParams}
+          filterParams={localFilters}
           availableFilters={availableFilters}
           onClearFilters={clearFilters}
           onFilterChange={updateFilter}
@@ -155,7 +183,7 @@ const CategoryProductsContent = ({
       {/* 移動端過濾器彈窗 */}
       <MobileFilters
         showMobileFilters={showMobileFilters}
-        filterParams={filterParams}
+        filterParams={localFilters}
         availableFilters={availableFilters}
         onClose={() => setShowMobileFilters(false)}
         onClearFilters={clearFilters}

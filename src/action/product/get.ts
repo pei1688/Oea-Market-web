@@ -15,14 +15,6 @@ const _getProducts = unstable_cache(
   { tags: [CACHE_TAGS.products], revalidate: 300 },
 );
 
-export async function getProducts() {
-  try {
-    return await _getProducts();
-  } catch (error) {
-    console.log("商品獲取錯誤", error);
-  }
-}
-
 // ── getRelatedProducts ───────────────────────────────────────
 // 不快取：內部使用 Math.random()，快取會凍結隨機結果
 
@@ -129,7 +121,7 @@ const _getProductsForSitemap = unstable_cache(
     });
   },
   ["products-for-sitemap"],
-  { tags: [CACHE_TAGS.products], revalidate: 300 }, 
+  { tags: [CACHE_TAGS.products], revalidate: 300 },
 );
 
 export async function getProductsForSitemap() {

@@ -54,8 +54,9 @@ const CategoryProductsContent = ({
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isLoading,
+
     isError,
+    isFetching,
   } = useInfiniteFilteredProductsByCollection({
     collectionId,
     ...filterParams,
@@ -106,7 +107,7 @@ const CategoryProductsContent = ({
         <PageHeader
           categorySlug={categorySlug}
           totalCount={totalCount}
-          isPending={isLoading}
+          isPending={isFetching}
           activeFilters={{
             categories: filterParams.categories,
             brands: filterParams.brands,
@@ -127,7 +128,7 @@ const CategoryProductsContent = ({
           availableFilters={availableFilters}
           onClearFilters={clearFilters}
           onFilterChange={updateFilter}
-          isPending={isLoading}
+          isPending={isFetching}
         />
 
         {/* 右側商品區域 */}
@@ -135,7 +136,7 @@ const CategoryProductsContent = ({
           {/* 商品內容 */}
           <ProductGrid
             products={products}
-            isPending={isLoading}
+            isPending={isFetching}
             collectionId={collectionId}
             categorySlug={categorySlug}
           />
@@ -160,7 +161,7 @@ const CategoryProductsContent = ({
         onClearFilters={clearFilters}
         onFilterChange={updateFilter}
         onSortChange={updateSort}
-        isPending={isLoading}
+        isPending={isFetching}
       />
     </>
   );

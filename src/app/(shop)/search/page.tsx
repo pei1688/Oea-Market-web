@@ -5,7 +5,7 @@ import { Suspense } from "react";
 const SearchPage = () => {
   return (
     <Suspense fallback={<Spinner />}>
-      <SearchContent />;
+      <SearchContent />
     </Suspense>
   );
 };

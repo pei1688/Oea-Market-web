@@ -40,7 +40,6 @@ const MobileCart = () => {
     }
     updateQuantity(itemId, newQuantity);
   };
-  console.log(items);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>

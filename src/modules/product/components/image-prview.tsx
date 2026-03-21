@@ -17,7 +17,7 @@ const ImagePreview = ({
     <div className="relative h-full w-full">
       <div className="flex h-full items-center justify-center">
         <Image
-          src={currentImage || "/placeholder.jpg"}
+          src={currentImage || "/default-product.png"}
           alt={name}
           className="object-contain"
           fill

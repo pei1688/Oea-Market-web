@@ -1,5 +1,4 @@
 "use client";
-
 import Spinner from "@/components/spinner";
 import { useSearch } from "@/hooks/use-search";
 import ProductItem from "@/modules/product/components/product-item";

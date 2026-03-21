@@ -34,7 +34,7 @@ const ProductImage = ({
       <Dialog>
         <DialogTrigger className="product-gallery relative h-auto w-full">
           <Image
-            src={image || "/placeholder.jpg"}
+            src={image || "/default-product.png"}
             alt={name}
             className="cursor-pointer rounded-sm object-cover transition-opacity hover:opacity-90"
             fill
@@ -60,7 +60,7 @@ const ProductImage = ({
         {images.map((img, index) => (
           <div key={index} className="relative h-16 w-16 shrink-0">
             <Image
-              src={img || "/placeholder.jpg"}
+              src={img || "/default-product.png"}
               alt={`${name} - 圖片 ${index + 1}`}
               className={`cursor-pointer rounded-sm border-2 object-cover transition ${
                 image === img

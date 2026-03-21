@@ -57,6 +57,7 @@ const ProductItem = memo(
               fill
               priority={index === undefined || index < 4}
               loading={index !== undefined && index >= 4 ? "lazy" : undefined}
+              fetchPriority="high"
             />
           </div>
 

@@ -5,16 +5,6 @@ import { prisma } from "@/lib/prisma";
 import { productInclude, productListSelect } from "@/lib/prisma-includes";
 import { CACHE_TAGS } from "@/lib/cache-keys";
 
-// ── getProducts ──────────────────────────────────────────────
-
-const _getProducts = unstable_cache(
-  async () => {
-    return prisma.product.findMany({ include: productInclude });
-  },
-  ["products"],
-  { tags: [CACHE_TAGS.products], revalidate: 300 },
-);
-
 // ── getRelatedProducts ───────────────────────────────────────
 // 不快取：內部使用 Math.random()，快取會凍結隨機結果
 

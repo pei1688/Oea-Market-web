@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Separator } from "@/components/ui/separator";
@@ -20,6 +20,7 @@ import { QuantitySelector } from "./quantity-selector";
 import { ActionButtons } from "./action-buttons";
 
 const ProductDetail = ({ product, collectionId }: ProductDetailProps) => {
+  const [isAdded, setIsAdded] = useState(false);
   const router = useRouter();
   const { addItem } = useCartStore();
   const {
@@ -164,11 +165,13 @@ const ProductDetail = ({ product, collectionId }: ProductDetailProps) => {
     }
 
     if (stockValidation.isExceeded) {
-      if (stockValidation.cartQuantity >= stockValidation.currentStock) {
-        toast.error("該商品已達到庫存上限，無法再加入購物車");
+      if (stockValidation.cartQuantity > 0) {
+        toast.error(
+          `購物車裡目前已有 ${stockValidation.cartQuantity} 件該商品，已達庫存上限，請至購物車頁面查看。`
+        );
       } else {
         toast.error(
-          `最多只能再加入 ${stockValidation.availableQuantity} 件商品`,
+          `所選數量超過庫存上限（庫存：${stockValidation.currentStock} 件），請調整數量。`
         );
       }
       return false;
@@ -197,6 +200,10 @@ const ProductDetail = ({ product, collectionId }: ProductDetailProps) => {
 
     const cartItem = createCartItem();
     addItem(cartItem);
+    setIsAdded(true);
+    setTimeout(() => {
+      setIsAdded(false);
+    }, 900);
   };
 
   const handleBuyNow = (): void => {
@@ -209,7 +216,8 @@ const ProductDetail = ({ product, collectionId }: ProductDetailProps) => {
 
   const isDisabled =
     variantInfo.stock === 0 ||
-    (Object.keys(groupedVariants).length > 0 && !isAllVariantsSelected);
+    (Object.keys(groupedVariants).length > 0 && !isAllVariantsSelected) ||
+    stockValidation.isAtStockLimit;
 
   return (
     <>
@@ -221,7 +229,7 @@ const ProductDetail = ({ product, collectionId }: ProductDetailProps) => {
           onImageChange={setCurrentImage}
         />
 
-        <div className="col-span-2 sm:col-span-1 flex w-full flex-col">
+        <div className="col-span-2 flex w-full flex-col sm:col-span-1">
           <ProductInfo product={product} priceInfo={priceInfo} />
 
           <VariantSelector
@@ -239,8 +247,10 @@ const ProductDetail = ({ product, collectionId }: ProductDetailProps) => {
 
           <ActionButtons
             isDisabled={isDisabled}
+            isAtStockLimit={stockValidation.isAtStockLimit}
             onAddToCart={handleAddToCart}
             onBuyNow={handleBuyNow}
+            isAdded={isAdded}
           />
 
           <Separator className="bg-primary/20 my-8" />

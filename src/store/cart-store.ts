@@ -1,4 +1,3 @@
-import { ProductVariant } from "@prisma/client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -51,6 +50,30 @@ interface CartActions {
   setCheckoutItems: (items: CartItem[]) => void;
   clearCheckoutItems: () => void;
   updateCheckoutItemQuantity: (itemId: string, quantity: number) => void;
+}
+
+// 匹配購物車商品的純函數
+export function matchCartItem(
+  item: CartItem,
+  productId: string,
+  variantId?: string,
+  spec2Id?: string,
+): boolean {
+  if (variantId && spec2Id) {
+    return (
+      item.productId === productId &&
+      item.variantId === variantId &&
+      item.spec2Id === spec2Id
+    );
+  } else if (variantId) {
+    return (
+      item.productId === productId &&
+      item.variantId === variantId &&
+      !item.spec2Id
+    );
+  } else {
+    return item.productId === productId && !item.variantId;
+  }
 }
 
 // 計算總數量和總價格的輔助函數
@@ -185,23 +208,9 @@ export const useCartStore = create<CartState & CartActions>()(
 
       // 新增：根據變體ID查找購物車項目
       getCartItemByVariantIds: (productId, variantId, spec2Id) => {
-        return get().items.find((item) => {
-          if (variantId && spec2Id) {
-            return (
-              item.productId === productId &&
-              item.variantId === variantId &&
-              item.spec2Id === spec2Id
-            );
-          } else if (variantId) {
-            return (
-              item.productId === productId &&
-              item.variantId === variantId &&
-              !item.spec2Id
-            );
-          } else {
-            return item.productId === productId && !item.variantId;
-          }
-        });
+        return get().items.find((item) =>
+          matchCartItem(item, productId, variantId, spec2Id)
+        );
       },
 
       // 檢查是否已達最大庫存

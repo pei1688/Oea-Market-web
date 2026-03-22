@@ -167,7 +167,7 @@ const ProductDetail = ({ product, collectionId }: ProductDetailProps) => {
     if (stockValidation.isExceeded) {
       if (stockValidation.cartQuantity > 0) {
         toast.error(
-          `購物車裡目前已有 ${stockValidation.cartQuantity} 件該商品，已達庫存上限，請至購物車頁面查看。`
+          `購物車裡目前已有 ${stockValidation.cartQuantity} 件該商品，無法將所選數量加到購物車，請至購物車頁面查看。`
         );
       } else {
         toast.error(

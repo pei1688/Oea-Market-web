@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 interface ActionButtonsProps {
   isDisabled: boolean;
@@ -17,15 +18,21 @@ export const ActionButtons = ({
 }: ActionButtonsProps) => {
   return (
     <div className="flex flex-col gap-4">
-      {/* <Separator className="bg-primary/20 my-8" /> */}
-      <Button
-        variant="default"
-        className="w-full"
-        onClick={onBuyNow}
-        disabled={isDisabled}
-      >
-        立即購買
-      </Button>
+      {isDisabled ? (
+        <Button variant="default" className="w-full" asChild>
+          <Link href={"/cart"}>立即購買</Link>
+        </Button>
+      ) : (
+        <Button
+          variant="default"
+          className="w-full"
+          onClick={onBuyNow}
+          disabled={isDisabled}
+        >
+          立即購買
+        </Button>
+      )}
+
       <Button
         onClick={onAddToCart}
         disabled={isDisabled || isAdded}

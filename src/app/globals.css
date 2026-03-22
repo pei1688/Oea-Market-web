@@ -203,7 +203,6 @@
 }
 
 @layer base {
- 
   body {
     @apply bg-neutral-100;
     font-family: var(--font-noto), var(--font-montserrat), sans-serif;
@@ -279,5 +278,17 @@
     line-height: var(--small-line-height);
     letter-spacing: var(--small-letter-spacing);
     color: var(--small-color);
+  }
+}
+
+.check-path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: draw 0.4s ease forwards;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
   }
 }

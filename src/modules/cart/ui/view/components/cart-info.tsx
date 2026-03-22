@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+import { CartItem } from "@/store/cart-store";
 import Link from "next/link";
 
 interface SelectedItemsData {
-  items: any[];
+  items: CartItem[];
   totalItems: number;
   totalPrice: number;
 }
@@ -31,16 +31,8 @@ export const CartInfo = ({
   const isIndeterminate =
     selectedCount > 0 && selectedCount < selectedItemsData.totalItems;
   return (
-    <div className="ae-cart-total px-2 mt-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+    <div className="ae-cart-total mt-6 flex flex-col gap-4 px-2 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex items-center gap-2">
-        <Checkbox
-          checked={isAllSelected}
-          onCheckedChange={handleSelectAll}
-          aria-label="全選商品"
-          className={
-            isIndeterminate ? "data-[state=checked]:bg-primary/50" : ""
-          }
-        />
         <span className="text-sm text-neutral-600">
           已選擇 {selectedCount} 件商品
         </span>

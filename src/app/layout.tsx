@@ -77,7 +77,7 @@ export default function RootLayout({
         className={`${montserrat.variable} ${notoSansTC.variable} flex min-h-screen flex-col antialiased`}
       >
         <ReactQueryProvider>
-          <Toaster position="top-center" richColors />
+          <Toaster position="top-right" richColors />
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />

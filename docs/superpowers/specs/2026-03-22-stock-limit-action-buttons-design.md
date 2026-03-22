@@ -1,7 +1,7 @@
 # Stock Limit Action Buttons — Design Spec
 
 **Date:** 2026-03-22
-**Status:** Approved
+**Status:** Draft
 
 ---
 
@@ -26,7 +26,7 @@ This causes:
 
 ### 1. `cart-store.ts` — Extract `matchCartItem` pure function
 
-Extract the cart item matching logic into a standalone exported pure function `matchCartItem`. This eliminates duplicated logic across `addItem`, `getCartItemByVariantIds`, and the new Zustand selector in `useStockValidation`.
+Extract the variant-based cart item matching logic into a standalone exported pure function `matchCartItem`. This is used only for the `variantId`/`spec2Id` matching path — it does **not** replace the `selectedVariants` JSON comparison in the `addItem` no-variant fallback branch, which remains unchanged.
 
 ```ts
 export function matchCartItem(
@@ -40,18 +40,21 @@ export function matchCartItem(
   } else if (variantId) {
     return item.productId === productId && item.variantId === variantId && !item.spec2Id;
   } else {
+    // No variantId: match by productId only, no variantId on item
     return item.productId === productId && !item.variantId;
   }
 }
 ```
 
-`addItem` and `getCartItemByVariantIds` are simplified to call `matchCartItem` internally.
+`getCartItemByVariantIds` is simplified to call `matchCartItem` internally. `addItem` retains its existing no-variant fallback using `selectedVariants` JSON comparison and is NOT refactored to use `matchCartItem`.
+
+`getCartItemByVariantIds` is retained in `CartActions` as it may still be consumed elsewhere. No removal.
 
 ---
 
 ### 2. `use-stock-validation.ts` — Zustand selector + remove useMemo
 
-Replace the stale `useMemo` + `getCartItemByVariantIds` pattern with a precise Zustand selector using `useCallback` so that the component re-renders only when the specific cart item changes.
+Replace the stale `useMemo` + `getCartItemByVariantIds` pattern with a precise Zustand selector using `useCallback`. Dependencies are the primitive values `variantInfo.variantId` and `variantInfo.spec2Id` (not the `variantInfo` object) to avoid spurious re-subscriptions.
 
 ```ts
 const cartItem = useCartStore(
@@ -60,24 +63,35 @@ const cartItem = useCartStore(
       state.items.find((item) =>
         matchCartItem(item, productId, variantInfo.variantId, variantInfo.spec2Id)
       ),
-    [productId, variantInfo]
+    [productId, variantInfo.variantId, variantInfo.spec2Id]
   )
 );
 ```
 
-Add `isAtStockLimit` to the `StockValidation` interface:
+`useMemo` is removed entirely — the selector drives reactivity directly.
+
+**Updated `StockValidation` interface:**
 
 ```ts
 export interface StockValidation {
   isExceeded: boolean;
-  isAtStockLimit: boolean;   // cartQuantity >= currentStock
+  isAtStockLimit: boolean;   // new: cartQuantity >= currentStock && currentStock > 0
   cartQuantity: number;
   availableQuantity: number;
   currentStock: number;
+  // totalQuantity removed: no consumers outside this hook; covered by cartQuantity + quantity
 }
 ```
 
-`useMemo` is removed entirely — the selector drives reactivity directly.
+`totalQuantity` is removed from the interface. It was only computed internally and never read externally. If this turns out to be wrong, a TypeScript error will surface at compile time.
+
+**`isAtStockLimit` definition:**
+
+```ts
+const isAtStockLimit = currentStock > 0 && cartQuantity >= currentStock;
+```
+
+Explicitly `false` when `currentStock === 0` to avoid conflating "out of stock" with "cart is full". The out-of-stock case is already handled by `variantInfo.stock === 0` in `isDisabled`.
 
 ---
 
@@ -92,13 +106,15 @@ const isDisabled =
   stockValidation.isAtStockLimit;
 ```
 
-**Unify toast message** (replace the two existing toast branches):
+**Unified toast message** (replaces both existing toast branches — intentional UX decision):
+
+When `stockValidation.isExceeded` is true (whether the cart is fully at limit or the selected quantity would push it over), display:
 
 ```
 購物車裡目前已有 ${stockValidation.cartQuantity} 件該商品，已達庫存上限，請至購物車頁面查看。
 ```
 
-Triggered whenever `stockValidation.isExceeded` is true (covers both partial-exceeded and fully-at-limit cases).
+The previous "最多只能再加入 X 件" partial-exceeded message is removed in favour of this single consistent message per the product owner's specification.
 
 **Pass `isAtStockLimit` to `ActionButtons`:**
 
@@ -112,9 +128,9 @@ Triggered whenever `stockValidation.isExceeded` is true (covers both partial-exc
 
 ---
 
-### 4. `action-buttons.tsx` — New prop + button text
+### 4. `action-buttons.tsx` — New prop + button label priority
 
-Add `isAtStockLimit` prop. When true, replace the "加入購物車" button label with "庫存已達上限". Both buttons remain disabled via `isDisabled`.
+Add `isAtStockLimit` prop. Remove the unused `quantity` prop.
 
 ```ts
 interface ActionButtonsProps {
@@ -123,14 +139,26 @@ interface ActionButtonsProps {
   onAddToCart: () => void;
   onBuyNow: () => void;
   isAdded: boolean;
-  quantity: number;
+  // quantity removed: not used in render
 }
 ```
 
-Button label logic:
-- `isAtStockLimit` → show "庫存已達上限"
-- `isAdded` → show "已加入" with checkmark
-- default → show "加入購物車"
+**Button label priority for "加入購物車":**
+
+1. `isAtStockLimit` → "庫存已達上限"
+2. `isAdded` → checkmark + "已加入"
+3. default → "加入購物車"
+
+Both buttons are disabled via `isDisabled` (which already includes `isAtStockLimit`). The label change provides additional visual feedback for the stock-limit state.
+
+---
+
+## Edge Cases
+
+- **No variants**: `variantInfo.variantId` is `undefined`. `matchCartItem` falls into the `!item.variantId` branch, matching products with no variant correctly.
+- **Out of stock (`stock === 0`)**: `isAtStockLimit` is explicitly `false` (guarded by `currentStock > 0`). `isDisabled` is already `true` via `variantInfo.stock === 0`. Button label shows default "加入購物車" (disabled state only).
+- **Variant not fully selected**: `variantInfo.stock === 0` and `variantInfo.variantId` is `undefined`. `isAtStockLimit` is `false`. `isDisabled` is `true`.
+- **spec2 combinations**: `matchCartItem` handles `variantId + spec2Id` pair correctly, matching the same logic as `getCartItemByVariantIds`.
 
 ---
 
@@ -138,10 +166,10 @@ Button label logic:
 
 | File | Change |
 |------|--------|
-| `src/store/cart-store.ts` | Export `matchCartItem` pure function; simplify `addItem` and `getCartItemByVariantIds` |
-| `src/hooks/product/use-stock-validation.ts` | Replace `useMemo` + function dep with Zustand selector + `useCallback`; add `isAtStockLimit` to return type |
+| `src/store/cart-store.ts` | Export `matchCartItem` pure function; simplify `getCartItemByVariantIds` to use it |
+| `src/hooks/product/use-stock-validation.ts` | Replace `useMemo` + function dep with Zustand selector + `useCallback`; add `isAtStockLimit`; remove `totalQuantity` |
 | `src/modules/product/components/product-detail/product-detail.tsx` | Add `isAtStockLimit` to `isDisabled`; unify toast message; pass `isAtStockLimit` to `ActionButtons` |
-| `src/modules/product/components/product-detail/action-buttons.tsx` | Add `isAtStockLimit` prop; update button label logic |
+| `src/modules/product/components/product-detail/action-buttons.tsx` | Add `isAtStockLimit` prop; remove `quantity` prop; update button label priority |
 
 ---
 

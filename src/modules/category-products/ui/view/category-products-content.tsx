@@ -164,7 +164,7 @@ const CategoryProductsContent = ({
           {/* 商品內容 */}
           <ProductGrid
             products={products}
-            isPending={isFetching}
+            isPending={isFetching && !isFetchingNextPage}
             collectionId={collectionId}
             categorySlug={categorySlug}
           />

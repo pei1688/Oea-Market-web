@@ -25,12 +25,9 @@ const CollectionItem = ({ col }: CollectionItemProps) => {
         quality={60}
         priority
       />
-      <div className="absolute inset-0 z-10 rounded-sm bg-linear-to-t from-neutral-800/80 via-neutral-800/20 to-transparent transition-opacity duration-500 group-hover:from-neutral-800/90" />
-      <div className="absolute inset-0 flex w-full flex-col items-center justify-center gap-6 px-4 py-3 text-neutral-100 z-30">
-        <h3 className="ae-home-title">{col.name}</h3>
-        <Button variant={"default2"} className="hover:bg-fuchsia-100/10">
-          查看商品
-        </Button>
+      <div className="absolute inset-0 z-10 rounded-sm bg-linear-to-t from-fuchsia-800/40 via-fuchsia-800/20 to-transparent transition-opacity duration-500 group-hover:from-fuchsia-800/60" />
+      <div className="absolute inset-0 z-30 flex w-full flex-col items-center justify-center gap-6 px-4 py-3 text-neutral-100">
+        <h3 className="ae-home-title font-medium">{col.name}</h3>
       </div>
     </Link>
   );

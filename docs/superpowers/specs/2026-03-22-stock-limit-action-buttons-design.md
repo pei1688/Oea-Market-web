@@ -106,15 +106,14 @@ const isDisabled =
   stockValidation.isAtStockLimit;
 ```
 
-**Unified toast message** (replaces both existing toast branches — intentional UX decision):
+**Conditional toast message** (replaces both existing toast branches — intentional UX decision):
 
-When `stockValidation.isExceeded` is true (whether the cart is fully at limit or the selected quantity would push it over), display:
+When `stockValidation.isExceeded` is true, display one of two messages depending on whether the cart already has items:
 
-```
-購物車裡目前已有 ${stockValidation.cartQuantity} 件該商品，已達庫存上限，請至購物車頁面查看。
-```
+- `cartQuantity > 0` → `購物車裡目前已有 ${cartQuantity} 件該商品，已達庫存上限，請至購物車頁面查看。`
+- `cartQuantity === 0` → `所選數量超過庫存上限（庫存：${currentStock} 件），請調整數量。`
 
-The previous "最多只能再加入 X 件" partial-exceeded message is removed in favour of this single consistent message per the product owner's specification.
+The `cartQuantity === 0` case occurs when the cart is empty but the user selects a quantity larger than the available stock. Showing "已有 0 件" in that scenario is grammatically incoherent, so a separate message is used.
 
 **Pass `isAtStockLimit` to `ActionButtons`:**
 

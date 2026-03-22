@@ -1,12 +1,12 @@
-import { useMemo } from "react";
-import { useCartStore } from "@/store/cart-store";
+import { useCallback } from "react";
+import { useCartStore, matchCartItem } from "@/store/cart-store";
 import { useProductDetailStore } from "@/store/product-detail-store";
 import { VariantInfo } from "./use-variant-stock";
 
 export interface StockValidation {
   isExceeded: boolean;
+  isAtStockLimit: boolean;
   cartQuantity: number;
-  totalQuantity: number;
   availableQuantity: number;
   currentStock: number;
 }
@@ -19,30 +19,31 @@ export const useStockValidation = (
   productId: string,
   variantInfo: VariantInfo,
   overrides?: StockValidationOverrides,
-) => {
+): StockValidation => {
   const { quantity: storeQuantity } = useProductDetailStore();
-  const { getCartItemByVariantIds } = useCartStore();
   const quantity = overrides?.quantity ?? storeQuantity;
 
-  const stockValidation = useMemo((): StockValidation => {
-    const existingCartItem = getCartItemByVariantIds(
-      productId,
-      variantInfo.variantId,
-      variantInfo.spec2Id,
-    );
+  const cartItem = useCartStore(
+    useCallback(
+      (state) =>
+        state.items.find((item) =>
+          matchCartItem(item, productId, variantInfo.variantId, variantInfo.spec2Id)
+        ),
+      [productId, variantInfo.variantId, variantInfo.spec2Id]
+    )
+  );
 
-    const cartQuantity = existingCartItem ? existingCartItem.quantity : 0;
-    const totalQuantity = cartQuantity + quantity;
-    const isExceeded = totalQuantity > variantInfo.stock;
+  const cartQuantity = cartItem ? cartItem.quantity : 0;
+  const currentStock = variantInfo.stock;
+  const totalQuantity = cartQuantity + quantity;
+  const isExceeded = totalQuantity > currentStock;
+  const isAtStockLimit = currentStock > 0 && cartQuantity >= currentStock;
 
-    return {
-      isExceeded,
-      cartQuantity,
-      totalQuantity,
-      availableQuantity: variantInfo.stock - cartQuantity,
-      currentStock: variantInfo.stock,
-    };
-  }, [productId, variantInfo, quantity, getCartItemByVariantIds]);
-
-  return stockValidation;
+  return {
+    isExceeded,
+    isAtStockLimit,
+    cartQuantity,
+    availableQuantity: currentStock - cartQuantity,
+    currentStock,
+  };
 };

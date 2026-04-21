@@ -13,11 +13,7 @@ const SearchContent = () => {
   useEffect(() => {
     if (query) {
       setSearchQuery(query);
-      const timeoutId = setTimeout(() => {
-        search(query);
-      }, 300);
-
-      return () => clearTimeout(timeoutId);
+      search(query);
     }
   }, [query, search]);
 

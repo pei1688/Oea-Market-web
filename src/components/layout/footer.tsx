@@ -4,7 +4,7 @@ import Link from "next/link";
 const links = [
   {
     title: "關於我們",
-    href: "/about",
+    href: "#",
   },
   {
     title: "最新消息",

@@ -11,7 +11,7 @@ const CollectionCard = ({ collections }: CollectionProps) => {
     <section className="w-full">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4 md:grid-rows-2 lg:h-150">
         {featured[3] && (
-          <div className="group relative overflow-hidden md:col-span-2 md:row-span-2">
+          <div className="group relative overflow-hidden md:col-span-2 md:row-span-2 ">
             <CollectionItem col={featured[3]} />
           </div>
         )}

@@ -110,9 +110,9 @@
   --datatableSecon: oklch(21.56% 0.0159 259.8);
   --foreground: oklch(91.54% 0.0099 268);
   --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
+  --card-foreground: #fafafa;
   --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
+  --popover-foreground: #fafafa;
   --primary: oklch(91.54% 0.0099 268);
   --primary-foreground: oklch(23% 0.0099 268);
   --secondary: oklch(23% 0.0099 268);

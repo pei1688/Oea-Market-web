@@ -3,6 +3,7 @@ import { getInfiniteFilteredProductsByCollection } from "@/action/product";
 import PageBreadcrumb from "@/components/layout/page-breadcrumb";
 import CategoryProductsContent from "@/modules/category-products/ui/view/category-products-content";
 import { type Metadata } from "next";
+import { Suspense } from "react";
 export const revalidate = 300;
 
 export async function generateStaticParams() {
@@ -82,11 +83,13 @@ export default async function CategoryProductsPage({ params }: Props) {
         )}
       </div>
 
-      <CategoryProductsContent
-        collectionId={collectionId}
-        categorySlug={categorySlug}
-        initialData={initialData}
-      />
+      <Suspense>
+        <CategoryProductsContent
+          collectionId={collectionId}
+          categorySlug={categorySlug}
+          initialData={initialData}
+        />
+      </Suspense>
     </div>
   );
 }

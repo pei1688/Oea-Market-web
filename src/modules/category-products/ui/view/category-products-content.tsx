@@ -166,7 +166,7 @@ const CategoryProductsContent = ({
           availableFilters={availableFilters}
           onClearFilters={clearFilters}
           onFilterChange={updateFilter}
-          isPending={isPending}
+          isPending={isFetching}
         />
 
         {/* 右側商品區域 */}
@@ -199,7 +199,7 @@ const CategoryProductsContent = ({
         onClearFilters={clearFilters}
         onFilterChange={updateFilter}
         onSortChange={updateSort}
-        isPending={isPending}
+        isPending={isFetching}
       />
     </>
   );

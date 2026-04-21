@@ -90,7 +90,7 @@ const CategoryProductsContent = ({
     fetchNextPage,
   });
 
-  // 更新過濾器：立即更新 local state，背景同步 URL
+  // 更新過濾器：立即同步 URL，透過 useTransition 延遲更新 local state（非緊急）
   const updateFilter = (
     type: "categories" | "brands",
     value: string,

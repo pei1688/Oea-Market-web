@@ -128,6 +128,8 @@ const CategoryProductsContent = ({
     });
   };
 
+  const isPending = isFilterPending || isFetching;
+
   if (isError) {
     return (
       <div className="flex h-64 items-center justify-center">
@@ -135,8 +137,6 @@ const CategoryProductsContent = ({
       </div>
     );
   }
-
-  const isPending = isFilterPending || isFetching;
 
   return (
     <>

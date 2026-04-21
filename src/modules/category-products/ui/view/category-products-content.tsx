@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useInfiniteFilteredProductsByCollection } from "@/services/products";
 import { type InfiniteFilteredProductsResult } from "@/action/product";
@@ -52,6 +52,8 @@ const CategoryProductsContent = ({
     sortBy: searchParams.get("sortBy") || "newest",
   });
 
+  const [isFilterPending, startFilterTransition] = useTransition();
+
   // 同步瀏覽器 back/forward：URL 從外部變化時更新 local state
   useEffect(() => {
     setLocalFilters({
@@ -99,25 +101,31 @@ const CategoryProductsContent = ({
       ? [...current, value]
       : current.filter((v) => v !== value);
     const newFilters = { ...localFilters, [type]: updated };
-    setLocalFilters(newFilters);
     const query = buildUrlFromFilters(newFilters);
     router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    startFilterTransition(() => {
+      setLocalFilters(newFilters);
+    });
   };
 
   // 更新排序
   const updateSort = (sortBy: string) => {
     const newFilters = { ...localFilters, sortBy };
-    setLocalFilters(newFilters);
     const query = buildUrlFromFilters(newFilters);
     router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    startFilterTransition(() => {
+      setLocalFilters(newFilters);
+    });
   };
 
   // 清除所有過濾器（保留排序）
   const clearFilters = () => {
     const newFilters = { categories: [], brands: [], sortBy: localFilters.sortBy };
-    setLocalFilters(newFilters);
     const query = buildUrlFromFilters(newFilters);
     router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+    startFilterTransition(() => {
+      setLocalFilters(newFilters);
+    });
   };
 
   if (isError) {
@@ -128,6 +136,8 @@ const CategoryProductsContent = ({
     );
   }
 
+  const isPending = isFilterPending || isFetching;
+
   return (
     <>
       <div className="mb-8 flex flex-col justify-between md:flex-row md:items-center">
@@ -135,7 +145,7 @@ const CategoryProductsContent = ({
         <PageHeader
           categorySlug={categorySlug}
           totalCount={totalCount}
-          isPending={isFetching}
+          isPending={isPending}
           activeFilters={{
             categories: localFilters.categories,
             brands: localFilters.brands,
@@ -156,7 +166,7 @@ const CategoryProductsContent = ({
           availableFilters={availableFilters}
           onClearFilters={clearFilters}
           onFilterChange={updateFilter}
-          isPending={isFetching}
+          isPending={isPending}
         />
 
         {/* 右側商品區域 */}
@@ -164,7 +174,7 @@ const CategoryProductsContent = ({
           {/* 商品內容 */}
           <ProductGrid
             products={products}
-            isPending={isFetching && !isFetchingNextPage}
+            isPending={isPending && !isFetchingNextPage}
             collectionId={collectionId}
             categorySlug={categorySlug}
           />
@@ -189,7 +199,7 @@ const CategoryProductsContent = ({
         onClearFilters={clearFilters}
         onFilterChange={updateFilter}
         onSortChange={updateSort}
-        isPending={isFetching}
+        isPending={isPending}
       />
     </>
   );

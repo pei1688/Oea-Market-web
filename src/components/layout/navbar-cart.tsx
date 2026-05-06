@@ -13,6 +13,7 @@ import { Minus, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useCartStore } from "@/store/cart-store";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useState } from "react";
 
 const NavbarCart = () => {
   const {
@@ -23,6 +24,7 @@ const NavbarCart = () => {
     removeItem,
     isMaxStock,
   } = useCartStore();
+  const [open, setOpen] = useState(false);
   const handleQuantityChange = (itemId: string, newQuantity: number) => {
     if (newQuantity <= 0) {
       removeItem(itemId);
@@ -38,7 +40,7 @@ const NavbarCart = () => {
     updateQuantity(itemId, newQuantity);
   };
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       {/* 使用 asChild 確保 Trigger 是 Button，並解決 ARIA 錯誤 */}
       <DropdownMenuTrigger asChild>
         <Button
@@ -49,7 +51,7 @@ const NavbarCart = () => {
         >
           <ShoppingCart className="size-6 transition-colors hover:text-neutral-600" />
           {totalItems > 0 && (
-            <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-fuchsia-500 text-[10px] font-bold text-white">
+            <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-fuchsia-500 text-[10px] font-bold text-fuchsia-50">
               {totalItems}
             </span>
           )}
@@ -67,6 +69,13 @@ const NavbarCart = () => {
           <div className="flex flex-col items-center justify-center py-10 text-neutral-500">
             <ShoppingCart className="mb-2 size-10 opacity-20" />
             <span className="text-sm">尚未有商品</span>
+            <Link
+              href={"/collections"}
+              className="text-fuchsia-700 underline underline-offset-4"
+              onClick={() => setOpen(false)}
+            >
+              立即查看商品
+            </Link>
           </div>
         ) : (
           <>
@@ -74,12 +83,12 @@ const NavbarCart = () => {
               {items.map((item: any) => (
                 <div key={item.id} className="flex gap-3">
                   {/* 商品圖片 */}
-                  <div className="relative size-16 shrink-0 overflow-hidden rounded-md ">
+                  <div className="relative size-16 shrink-0 overflow-hidden rounded-md">
                     <Image
                       src={item.image}
                       alt={item.name}
                       fill
-                      className="object-cover "
+                      className="object-cover"
                     />
                   </div>
 

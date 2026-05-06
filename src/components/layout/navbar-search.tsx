@@ -9,6 +9,7 @@ const NavbarSearch = () => {
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const router = useRouter();
   const mobileInputRef = useRef<HTMLInputElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,10 +42,26 @@ const NavbarSearch = () => {
         mobileInputRef.current?.focus();
       }, 300); // 等待動畫完成後再聚焦
     }
+
+    //點外面關閉
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target as Node)
+      ) {
+        setIsMobileSearchOpen(false);
+      }
+    };
+    if (isMobileSearchOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
   }, [isMobileSearchOpen]);
 
   return (
-    <div>
+    <div ref={searchContainerRef}>
       {/* 搜尋按鈕 */}
       <button
         onClick={toggleMobileSearch}

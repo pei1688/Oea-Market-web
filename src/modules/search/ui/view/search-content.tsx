@@ -10,6 +10,8 @@ const SearchContent = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const { results, error, isPending, search } = useSearch();
   const query = searchParams.get("q");
+
+  
   useEffect(() => {
     if (query) {
       setSearchQuery(query);
@@ -52,7 +54,7 @@ const SearchContent = () => {
               <p className="mt-2 text-neutral-400">請嘗試其他關鍵字</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-6 lg:grid-cols-3 xl:grid-cols-4">
               {results.products.map((product, index) => (
                 <ProductItem key={product.id} product={product} index={index} />
               ))}

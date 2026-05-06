@@ -60,7 +60,10 @@ const MobileCart = () => {
       </SheetTrigger>
 
       {/* drawer content */}
-      <SheetContent side="right" className="h-full px-4 sm:max-w-md border-transparent">
+      <SheetContent
+        side="right"
+        className="h-full border-transparent px-4 sm:max-w-md"
+      >
         <SheetHeader>
           <SheetTitle>您的購物車 ({totalItems})</SheetTitle>
         </SheetHeader>
@@ -68,8 +71,16 @@ const MobileCart = () => {
         <Separator className="bg-primary/20 my-4 w-full" />
 
         {items.length === 0 ? (
-          <div className="flex items-center justify-center py-8">
-            <span className="text-neutral-500">尚未有商品</span>
+          <div className="flex flex-col items-center justify-center py-10 text-neutral-500">
+            <ShoppingCart className="mb-2 size-10 opacity-20" />
+            <span className="text-sm">尚未有商品</span>
+            <Link
+              href={"/collections"}
+              className="text-fuchsia-700 underline underline-offset-4"
+              onClick={() => setOpen(false)}
+            >
+              立即查看商品
+            </Link>
           </div>
         ) : (
           <div className="max-h-[70vh] space-y-4 overflow-y-auto pr-2">

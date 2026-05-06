@@ -71,14 +71,13 @@ const Content = () => {
             </div>
             <div>
               <h4 className="font-medium">電子郵件</h4>
-              <p>support@aepstore.com</p>
+              <p>support@oeamarket.com</p>
             </div>
             <div>
               <h4 className="font-medium">地址</h4>
               <p>台北市信義區信義路五段7號</p>
             </div>
             <div className="flex items-center space-x-4 pt-4">
-              {/* 可換成你的社群 icon */}
               <Link
                 href="#"
                 aria-label="Facebook"
@@ -98,7 +97,7 @@ const Content = () => {
                 aria-label="LinkedIn"
                 className="hover:text-indigo-600"
               >
-                <svg className="h-6 w-6" /* ... */></svg>
+                <svg className="h-6 w-6" ></svg>
               </Link>
             </div>
           </div>

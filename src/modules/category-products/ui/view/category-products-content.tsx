@@ -4,7 +4,6 @@ import { useEffect, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   useAvailableFiltersByCollection,
-  useFilteredProductsCount,
   useInfiniteFilteredProductsByCollection,
 } from "@/services/products";
 import { type InfiniteFilteredProductsResult } from "@/action/product";
@@ -91,17 +90,6 @@ const CategoryProductsContent = ({
   });
 
   const {
-    isPending: isCountPending,
-    isFetching: isCountFetching,
-    isError: isCountError,
-  } = useFilteredProductsCount({
-    collectionId,
-    categorySlug,
-    categories: localFilters.categories,
-    brands: localFilters.brands,
-  });
-
-  const {
     availableFilters,
     isPending: isAvailableFiltersPending,
     isError: isAvailableFiltersError,
@@ -128,11 +116,11 @@ const CategoryProductsContent = ({
     const newFilters = { ...localFilters, [type]: updated };
     const query = buildUrlFromFilters(newFilters);
 
-    router.replace(`${pathname}${query ? `?${query}` : ""}`, {
-      scroll: false,
-    });
+    setLocalFilters(newFilters);
     startFilterTransition(() => {
-      setLocalFilters(newFilters);
+      router.replace(`${pathname}${query ? `?${query}` : ""}`, {
+        scroll: false,
+      });
     });
   };
 
@@ -140,11 +128,11 @@ const CategoryProductsContent = ({
     const newFilters = { ...localFilters, sortBy };
     const query = buildUrlFromFilters(newFilters);
 
-    router.replace(`${pathname}${query ? `?${query}` : ""}`, {
-      scroll: false,
-    });
+    setLocalFilters(newFilters);
     startFilterTransition(() => {
-      setLocalFilters(newFilters);
+      router.replace(`${pathname}${query ? `?${query}` : ""}`, {
+        scroll: false,
+      });
     });
   };
 
@@ -156,17 +144,17 @@ const CategoryProductsContent = ({
     };
     const query = buildUrlFromFilters(newFilters);
 
-    router.replace(`${pathname}${query ? `?${query}` : ""}`, {
-      scroll: false,
-    });
+    setLocalFilters(newFilters);
     startFilterTransition(() => {
-      setLocalFilters(newFilters);
+      router.replace(`${pathname}${query ? `?${query}` : ""}`, {
+        scroll: false,
+      });
     });
   };
 
   const isPending = isFilterPending || isFetching;
 
-  if (isError || isAvailableFiltersError || isCountError) {
+  if (isError || isAvailableFiltersError) {
     return (
       <div className="flex h-64 items-center justify-center">
         <p className="text-neutral-500">商品獲取錯誤，請稍後再次嘗試。</p>
@@ -179,7 +167,7 @@ const CategoryProductsContent = ({
       <div className="mb-8 flex flex-col justify-between md:flex-row md:items-center">
         <PageHeader
           categorySlug={categorySlug}
-          isPending={isCountPending || isCountFetching}
+          isPending={isPending}
           activeFilters={{
             categories: localFilters.categories,
             brands: localFilters.brands,

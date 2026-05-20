@@ -6,3 +6,7 @@ CREATE INDEX IF NOT EXISTS "Product_name_id_idx"      ON "Product" (name, id);
 
 -- Single B-tree index for brand filter (WHERE brand IN (...))
 CREATE INDEX IF NOT EXISTS "Product_brand_idx"        ON "Product" (brand);
+
+-- Speeds collection product lookups and joins from ProductCollection to Product
+CREATE INDEX IF NOT EXISTS "ProductCollection_collectionId_productId_idx"
+  ON "ProductCollection" ("collectionId", "productId");

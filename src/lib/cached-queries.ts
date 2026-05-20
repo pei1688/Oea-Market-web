@@ -44,3 +44,20 @@ export const getAvailableFilters = unstable_cache(
   ["available-filters"],
   { tags: [CACHE_TAGS.collections], revalidate: 600 }
 );
+
+export const getCategoryIdsByNames = unstable_cache(
+  async (names: string[]) => {
+    if (names.length === 0) return [];
+
+    const categories = await prisma.category.findMany({
+      where: {
+        name: { in: names },
+      },
+      select: { id: true },
+    });
+
+    return categories.map((category) => category.id);
+  },
+  ["category-ids-by-names"],
+  { tags: [CACHE_TAGS.collections], revalidate: 600 }
+);

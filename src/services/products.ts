@@ -221,6 +221,12 @@ export const useInfiniteFilteredProductsByCollection = ({
   enabled = true,
   initialData,
 }: UseInfiniteFilteredProductsOptions) => {
+  const canUseInitialData =
+    initialData &&
+    (!categories || categories.length === 0) &&
+    (!brands || brands.length === 0) &&
+    (!sortBy || sortBy === "newest");
+
   const query = useInfiniteQuery({
     queryKey: [
       "infiniteFilteredProducts",
@@ -248,7 +254,7 @@ export const useInfiniteFilteredProductsByCollection = ({
     gcTime: 1000 * 60 * 10,
     retry: 1,
     refetchOnWindowFocus: false,
-    placeholderData: initialData
+    initialData: canUseInitialData
       ? { pages: [initialData], pageParams: [undefined] }
       : undefined,
   });

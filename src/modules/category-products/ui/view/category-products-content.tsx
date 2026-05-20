@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
   useAvailableFiltersByCollection,
   useInfiniteFilteredProductsByCollection,
@@ -50,7 +50,6 @@ const CategoryProductsContent = ({
   initialData,
 }: CategoryProductsContentProps) => {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const pathname = usePathname();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
@@ -118,9 +117,7 @@ const CategoryProductsContent = ({
 
     setLocalFilters(newFilters);
     startFilterTransition(() => {
-      router.replace(`${pathname}${query ? `?${query}` : ""}`, {
-        scroll: false,
-      });
+      window.history.replaceState(null, "", `${pathname}${query ? `?${query}` : ""}`);
     });
   };
 
@@ -130,9 +127,7 @@ const CategoryProductsContent = ({
 
     setLocalFilters(newFilters);
     startFilterTransition(() => {
-      router.replace(`${pathname}${query ? `?${query}` : ""}`, {
-        scroll: false,
-      });
+      window.history.replaceState(null, "", `${pathname}${query ? `?${query}` : ""}`);
     });
   };
 
@@ -146,9 +141,7 @@ const CategoryProductsContent = ({
 
     setLocalFilters(newFilters);
     startFilterTransition(() => {
-      router.replace(`${pathname}${query ? `?${query}` : ""}`, {
-        scroll: false,
-      });
+      window.history.replaceState(null, "", `${pathname}${query ? `?${query}` : ""}`);
     });
   };
 

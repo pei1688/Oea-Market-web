@@ -4,7 +4,7 @@ import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { productListSelect } from "@/lib/prisma-includes";
-import { getCollectionInfo } from "@/lib/cached-queries";
+import { getCategoryIdsByNames, getCollectionInfo } from "@/lib/cached-queries";
 import { CACHE_TAGS } from "@/lib/cache-keys";
 
 export interface InfiniteProductFilterParams {
@@ -33,7 +33,61 @@ export interface InfiniteFilteredProductsResult {
   } | null;
 }
 
-// ── 第一頁快取（無 cursor）────────────────────────────────────
+function getOrderBy(sortBy: string): Prisma.ProductOrderByWithRelationInput[] {
+  switch (sortBy) {
+    case "price-low":
+      return [{ price: "asc" }, { id: "asc" }];
+    case "price-high":
+      return [{ price: "desc" }, { id: "desc" }];
+    case "name-asc":
+      return [{ name: "asc" }, { id: "asc" }];
+    case "name-desc":
+      return [{ name: "desc" }, { id: "desc" }];
+    case "oldest":
+      return [{ createdAt: "asc" }, { id: "asc" }];
+    default:
+      return [{ createdAt: "desc" }, { id: "desc" }];
+  }
+}
+
+async function buildProductWhere({
+  collectionId,
+  categorySlug,
+  categories,
+  brands,
+}: {
+  collectionId: string;
+  categorySlug?: string;
+  categories: string[];
+  brands: string[];
+}): Promise<Prisma.ProductWhereInput> {
+  const where: Prisma.ProductWhereInput = {
+    productCollections: {
+      some: { collectionId },
+    },
+  };
+
+  if (categories.length > 0) {
+    const categoryIds = await getCategoryIdsByNames(categories);
+    where.categoryId = { in: categoryIds };
+  } else if (categorySlug) {
+    const categoryIds = await getCategoryIdsByNames([
+      decodeURIComponent(categorySlug),
+    ]);
+
+    if (categoryIds.length > 0) {
+      where.categoryId = { in: categoryIds };
+    }
+  }
+
+  if (brands.length > 0) {
+    where.brand = { in: brands };
+  }
+
+  return where;
+}
+
+const emptyFilters = { categories: [], brands: [] };
 
 const _getInfiniteFirstPage = unstable_cache(
   async (
@@ -44,90 +98,45 @@ const _getInfiniteFirstPage = unstable_cache(
     sortBy: string,
     limit: number,
   ): Promise<InfiniteFilteredProductsResult> => {
-    try {
-      const baseWhere: Prisma.ProductWhereInput = {
-        productCollections: {
-          some: { collectionId },
-        },
-      };
+    const where = await buildProductWhere({
+      collectionId,
+      categorySlug,
+      categories,
+      brands,
+    });
 
-      if (categorySlug) {
-        const decoded = decodeURIComponent(categorySlug);
-        if (decoded !== "全部") {
-          baseWhere.category = { name: decoded };
-        }
-      }
+    const [collection, products] = await Promise.all([
+      getCollectionInfo(collectionId),
+      prisma.product.findMany({
+        where,
+        select: productListSelect,
+        orderBy: getOrderBy(sortBy),
+        take: limit + 1,
+      }),
+    ]);
 
-      if (categories.length > 0) {
-        baseWhere.category = { name: { in: categories } };
-      }
+    if (!collection) {
+      throw new Error("Collection not found");
+    }
 
-      if (brands.length > 0) {
-        baseWhere.brand = { in: brands };
-      }
+    const hasNextPage = products.length > limit;
+    const resultProducts = hasNextPage ? products.slice(0, -1) : products;
 
-      // orderBy with id tiebreakers preserved for cursor-based pagination stability
-      let orderBy: Prisma.ProductOrderByWithRelationInput[] = [];
-      switch (sortBy) {
-        case "price-low":
-          orderBy = [{ price: "asc" }, { id: "asc" }];
-          break;
-        case "price-high":
-          orderBy = [{ price: "desc" }, { id: "desc" }];
-          break;
-        case "name-asc":
-          orderBy = [{ name: "asc" }, { id: "asc" }];
-          break;
-        case "name-desc":
-          orderBy = [{ name: "desc" }, { id: "desc" }];
-          break;
-        case "oldest":
-          orderBy = [{ createdAt: "asc" }, { id: "asc" }];
-          break;
-        default:
-          orderBy = [{ createdAt: "desc" }, { id: "desc" }];
-          break;
-      }
-
-      const [collection, products] = await Promise.all([
-        getCollectionInfo(collectionId),
-        prisma.product.findMany({
-          where: baseWhere,
-          select: productListSelect,
-          orderBy,
-          take: limit + 1,
-        }),
-      ]);
-
-      if (!collection) {
-        throw new Error("Collection not found");
-      }
-
-      const hasNextPage = products.length > limit;
-      const resultProducts = hasNextPage ? products.slice(0, -1) : products;
-      const nextCursor =
+    return {
+      products: resultProducts,
+      nextCursor:
         hasNextPage && resultProducts.length > 0
           ? resultProducts[resultProducts.length - 1].id
-          : null;
-
-      return {
-        products: resultProducts,
-        nextCursor,
-        hasNextPage,
-        totalCount: 0,
-        availableFilters: { categories: [], brands: [] },
-        collectionInfo: collection,
-      };
-    } catch (error) {
-      console.error("獲取無限滾動產品錯誤:", error);
-      throw error;
-    }
+          : null,
+      hasNextPage,
+      totalCount: 0,
+      availableFilters: emptyFilters,
+      collectionInfo: collection,
+    };
   },
   ["infinite-filtered-products-first"],
   { tags: [CACHE_TAGS.products, CACHE_TAGS.collections], revalidate: 60 },
 );
-
-// ── 主要 action ───────────────────────────────────────────────
 
 export async function getInfiniteFilteredProductsByCollection({
   collectionId,
@@ -138,7 +147,6 @@ export async function getInfiniteFilteredProductsByCollection({
   cursor,
   limit = 12,
 }: InfiniteProductFilterParams): Promise<InfiniteFilteredProductsResult> {
-  // First page: use cache (all users share the same first page per filter combo)
   if (!cursor) {
     return _getInfiniteFirstPage(
       collectionId,
@@ -150,77 +158,34 @@ export async function getInfiniteFilteredProductsByCollection({
     );
   }
 
-  // Cursor pages: direct DB query (cursor values are unique per user, cache hit rate ≈ 0)
-  try {
-    const baseWhere: Prisma.ProductWhereInput = {
-      productCollections: {
-        some: { collectionId },
-      },
-    };
+  const where = await buildProductWhere({
+    collectionId,
+    categorySlug,
+    categories,
+    brands,
+  });
 
-    if (categorySlug) {
-      const decoded = decodeURIComponent(categorySlug);
-      if (decoded !== "全部") {
-        baseWhere.category = { name: decoded };
-      }
-    }
+  const products = await prisma.product.findMany({
+    where,
+    select: productListSelect,
+    orderBy: getOrderBy(sortBy),
+    cursor: { id: cursor },
+    skip: 1,
+    take: limit + 1,
+  });
 
-    if (categories.length > 0) {
-      baseWhere.category = { name: { in: categories } };
-    }
+  const hasNextPage = products.length > limit;
+  const resultProducts = hasNextPage ? products.slice(0, -1) : products;
 
-    if (brands.length > 0) {
-      baseWhere.brand = { in: brands };
-    }
-
-    let orderBy: Prisma.ProductOrderByWithRelationInput[] = [];
-    switch (sortBy) {
-      case "price-low":
-        orderBy = [{ price: "asc" }, { id: "asc" }];
-        break;
-      case "price-high":
-        orderBy = [{ price: "desc" }, { id: "desc" }];
-        break;
-      case "name-asc":
-        orderBy = [{ name: "asc" }, { id: "asc" }];
-        break;
-      case "name-desc":
-        orderBy = [{ name: "desc" }, { id: "desc" }];
-        break;
-      case "oldest":
-        orderBy = [{ createdAt: "asc" }, { id: "asc" }];
-        break;
-      default:
-        orderBy = [{ createdAt: "desc" }, { id: "desc" }];
-        break;
-    }
-
-    const products = await prisma.product.findMany({
-      where: baseWhere,
-      select: productListSelect,
-      orderBy,
-      cursor: { id: cursor },
-      skip: 1,
-      take: limit + 1,
-    });
-
-    const hasNextPage = products.length > limit;
-    const resultProducts = hasNextPage ? products.slice(0, -1) : products;
-    const nextCursor =
+  return {
+    products: resultProducts,
+    nextCursor:
       hasNextPage && resultProducts.length > 0
         ? resultProducts[resultProducts.length - 1].id
-        : null;
-
-    return {
-      products: resultProducts,
-      nextCursor,
-      hasNextPage,
-      totalCount: 0,
-      availableFilters: { categories: [], brands: [] },
-      collectionInfo: null,
-    };
-  } catch (error) {
-    console.error("獲取無限滾動產品錯誤:", error);
-    throw error;
-  }
+        : null,
+    hasNextPage,
+    totalCount: 0,
+    availableFilters: emptyFilters,
+    collectionInfo: null,
+  };
 }

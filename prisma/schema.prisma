@@ -37,6 +37,9 @@ model Product {
   @@index([price, id])
   @@index([name, id])
   @@index([brand])
+  @@index([categoryId, createdAt, id])
+  @@index([brand, createdAt, id])
+  @@index([categoryId, brand, createdAt, id])
   @@map("Product")
 }
 

@@ -4,7 +4,7 @@ import { unstable_cache } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 import { productListSelect } from "@/lib/prisma-includes";
-import { getCollectionInfo, getAvailableFilters } from "@/lib/cached-queries";
+import { getCollectionInfo } from "@/lib/cached-queries";
 import { CACHE_TAGS } from "@/lib/cache-keys";
 
 export interface InfiniteProductFilterParams {
@@ -89,7 +89,7 @@ const _getInfiniteFirstPage = unstable_cache(
           break;
       }
 
-      const [collection, products, totalCount, filters] = await Promise.all([
+      const [collection, products] = await Promise.all([
         getCollectionInfo(collectionId),
         prisma.product.findMany({
           where: baseWhere,
@@ -97,8 +97,6 @@ const _getInfiniteFirstPage = unstable_cache(
           orderBy,
           take: limit + 1,
         }),
-        prisma.product.count({ where: baseWhere }),
-        getAvailableFilters(collectionId),
       ]);
 
       if (!collection) {
@@ -116,8 +114,8 @@ const _getInfiniteFirstPage = unstable_cache(
         products: resultProducts,
         nextCursor,
         hasNextPage,
-        totalCount,
-        availableFilters: filters,
+        totalCount: 0,
+        availableFilters: { categories: [], brands: [] },
         collectionInfo: collection,
       };
     } catch (error) {
@@ -197,30 +195,14 @@ export async function getInfiniteFilteredProductsByCollection({
         break;
     }
 
-    const isAscending = ["price-low", "name-asc", "oldest"].includes(sortBy);
-    baseWhere.id = isAscending ? { gt: cursor } : { lt: cursor };
-    orderBy = orderBy.map((order) =>
-      "id" in order ? { id: isAscending ? "asc" : "desc" } : order,
-    );
-    if (!orderBy.some((order) => "id" in order)) {
-      orderBy.push({ id: isAscending ? "asc" : "desc" });
-    }
-
-    const [collection, products, totalCount, filters] = await Promise.all([
-      getCollectionInfo(collectionId),
-      prisma.product.findMany({
-        where: baseWhere,
-        select: productListSelect,
-        orderBy,
-        take: limit + 1,
-      }),
-      prisma.product.count({ where: baseWhere }),
-      getAvailableFilters(collectionId),
-    ]);
-
-    if (!collection) {
-      throw new Error("Collection not found");
-    }
+    const products = await prisma.product.findMany({
+      where: baseWhere,
+      select: productListSelect,
+      orderBy,
+      cursor: { id: cursor },
+      skip: 1,
+      take: limit + 1,
+    });
 
     const hasNextPage = products.length > limit;
     const resultProducts = hasNextPage ? products.slice(0, -1) : products;
@@ -233,9 +215,9 @@ export async function getInfiniteFilteredProductsByCollection({
       products: resultProducts,
       nextCursor,
       hasNextPage,
-      totalCount,
-      availableFilters: filters,
-      collectionInfo: collection,
+      totalCount: 0,
+      availableFilters: { categories: [], brands: [] },
+      collectionInfo: null,
     };
   } catch (error) {
     console.error("獲取無限滾動產品錯誤:", error);

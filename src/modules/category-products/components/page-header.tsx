@@ -1,6 +1,5 @@
 interface PageHeaderProps {
   categorySlug?: string;
-  totalCount: number;
   isPending: boolean;
   activeFilters?: {
     categories: string[];
@@ -10,7 +9,6 @@ interface PageHeaderProps {
 
 const PageHeader = ({
   categorySlug,
-  totalCount,
   isPending,
   activeFilters = { categories: [], brands: [] },
 }: PageHeaderProps) => {
@@ -64,9 +62,6 @@ const PageHeader = ({
   return (
     <div>
       <h1 className="ae-section-title">{getDisplayTitle()}</h1>
-      <p className="mt-1 ae-caption">
-        {isPending ? "載入中..." : `${totalCount} 項商品`}
-      </p>
     </div>
   );
 };

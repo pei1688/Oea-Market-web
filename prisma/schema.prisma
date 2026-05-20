@@ -114,6 +114,7 @@ model ProductCollection {
 
   @@index([productId])
   @@index([collectionId])
+  @@index([collectionId, productId])
   @@map("ProductCollection")
 }
 

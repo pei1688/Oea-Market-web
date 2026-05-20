@@ -1,5 +1,8 @@
 import { getCollectionById, getCollections } from "@/action/collection";
-import { getInfiniteFilteredProductsByCollection } from "@/action/product";
+import {
+  getAvailableFiltersByCollection,
+  getInfiniteFilteredProductsByCollection,
+} from "@/action/product";
 import PageBreadcrumb from "@/components/layout/page-breadcrumb";
 import CategoryProductsContent from "@/modules/category-products/ui/view/category-products-content";
 import { type Metadata } from "next";
@@ -50,10 +53,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CategoryProductsPage({ params }: Props) {
   const { collectionId, categorySlug } = await params;
 
-  const initialData = await getInfiniteFilteredProductsByCollection({
-    collectionId,
-    categorySlug: decodeURIComponent(categorySlug),
-  });
+  const [initialData, availableFilters] = await Promise.all([
+    getInfiniteFilteredProductsByCollection({
+      collectionId,
+      categorySlug: decodeURIComponent(categorySlug),
+    }),
+    getAvailableFiltersByCollection(collectionId),
+  ]);
+
+  const initialDataWithFilters = {
+    ...initialData,
+    availableFilters,
+  };
 
   if (!initialData.collectionInfo) {
     return (
@@ -87,7 +98,7 @@ export default async function CategoryProductsPage({ params }: Props) {
         <CategoryProductsContent
           collectionId={collectionId}
           categorySlug={categorySlug}
-          initialData={initialData}
+          initialData={initialDataWithFilters}
         />
       </Suspense>
     </div>

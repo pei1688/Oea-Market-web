@@ -1,7 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Collection } from "@prisma/client";
-import { Button } from "@/components/ui/button";
 
 interface CollectionItemProps {
   col: Collection;
@@ -13,7 +12,7 @@ const CollectionItem = ({ col }: CollectionItemProps) => {
   return (
     <Link
       href={`/collections/${col.id}/${defaultSlug}`}
-      className="relative block aspect-video w-full shadow-xl duration-500 hover:scale-102 hover:shadow-2xl lg:h-full"
+      className="relative block aspect-video w-full shadow-xl duration-500 hover:scale-102 hover:shadow-2xl md:h-full"
     >
       <Image
         src={col.image || "/default-collection.jpg"}

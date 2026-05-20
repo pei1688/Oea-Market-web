@@ -1,7 +1,12 @@
 "use client";
-import { useState, useEffect, useTransition } from "react";
-import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useInfiniteFilteredProductsByCollection } from "@/services/products";
+
+import { useEffect, useState, useTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  useAvailableFiltersByCollection,
+  useFilteredProductsCount,
+  useInfiniteFilteredProductsByCollection,
+} from "@/services/products";
 import { type InfiniteFilteredProductsResult } from "@/action/product";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import PageHeader from "@/modules/category-products/components/page-header";
@@ -22,16 +27,21 @@ interface CategoryProductsContentProps {
   initialData?: InfiniteFilteredProductsResult;
 }
 
-// 從 localFilters 建構 URL query string（不依賴 searchParams，避免 stale URL 問題）
 function buildUrlFromFilters(filters: {
   categories: string[];
   brands: string[];
   sortBy: string;
 }): string {
   const params = new URLSearchParams();
-  if (filters.categories.length > 0) params.set("categories", filters.categories.join(","));
-  if (filters.brands.length > 0) params.set("brands", filters.brands.join(","));
-  if (filters.sortBy !== "newest") params.set("sortBy", filters.sortBy);
+  if (filters.categories.length > 0) {
+    params.set("categories", filters.categories.join(","));
+  }
+  if (filters.brands.length > 0) {
+    params.set("brands", filters.brands.join(","));
+  }
+  if (filters.sortBy !== "newest") {
+    params.set("sortBy", filters.sortBy);
+  }
   return params.toString();
 }
 
@@ -45,29 +55,26 @@ const CategoryProductsContent = ({
   const pathname = usePathname();
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  // Filter 本地狀態：初始值從 URL 讀取，之後以 local state 為主
   const [localFilters, setLocalFilters] = useState({
-    categories: searchParams.get("categories")?.split(",").filter(Boolean) || [],
+    categories:
+      searchParams.get("categories")?.split(",").filter(Boolean) || [],
     brands: searchParams.get("brands")?.split(",").filter(Boolean) || [],
     sortBy: searchParams.get("sortBy") || "newest",
   });
 
   const [isFilterPending, startFilterTransition] = useTransition();
 
-  // 同步瀏覽器 back/forward：URL 從外部變化時更新 local state
   useEffect(() => {
     setLocalFilters({
-      categories: searchParams.get("categories")?.split(",").filter(Boolean) || [],
+      categories:
+        searchParams.get("categories")?.split(",").filter(Boolean) || [],
       brands: searchParams.get("brands")?.split(",").filter(Boolean) || [],
       sortBy: searchParams.get("sortBy") || "newest",
     });
   }, [searchParams]);
 
-  // 無限滾動的產品數據
   const {
     products,
-    totalCount,
-    availableFilters,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -83,14 +90,32 @@ const CategoryProductsContent = ({
     initialData,
   });
 
-  // 設置無限滾動
+  const {
+    isPending: isCountPending,
+    isFetching: isCountFetching,
+    isError: isCountError,
+  } = useFilteredProductsCount({
+    collectionId,
+    categorySlug,
+    categories: localFilters.categories,
+    brands: localFilters.brands,
+  });
+
+  const {
+    availableFilters,
+    isPending: isAvailableFiltersPending,
+    isError: isAvailableFiltersError,
+  } = useAvailableFiltersByCollection({
+    collectionId,
+    initialData: initialData?.availableFilters,
+  });
+
   const { loadMoreRef } = useInfiniteScroll({
     hasNextPage: hasNextPage ?? false,
     isFetchingNextPage,
     fetchNextPage,
   });
 
-  // 更新過濾器：立即同步 URL，透過 useTransition 延遲更新 local state（非緊急）
   const updateFilter = (
     type: "categories" | "brands",
     value: string,
@@ -102,27 +127,38 @@ const CategoryProductsContent = ({
       : current.filter((v) => v !== value);
     const newFilters = { ...localFilters, [type]: updated };
     const query = buildUrlFromFilters(newFilters);
-    router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+
+    router.replace(`${pathname}${query ? `?${query}` : ""}`, {
+      scroll: false,
+    });
     startFilterTransition(() => {
       setLocalFilters(newFilters);
     });
   };
 
-  // 更新排序
   const updateSort = (sortBy: string) => {
     const newFilters = { ...localFilters, sortBy };
     const query = buildUrlFromFilters(newFilters);
-    router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+
+    router.replace(`${pathname}${query ? `?${query}` : ""}`, {
+      scroll: false,
+    });
     startFilterTransition(() => {
       setLocalFilters(newFilters);
     });
   };
 
-  // 清除所有過濾器（保留排序）
   const clearFilters = () => {
-    const newFilters = { categories: [], brands: [], sortBy: localFilters.sortBy };
+    const newFilters = {
+      categories: [],
+      brands: [],
+      sortBy: localFilters.sortBy,
+    };
     const query = buildUrlFromFilters(newFilters);
-    router.replace(`${pathname}${query ? `?${query}` : ""}`, { scroll: false });
+
+    router.replace(`${pathname}${query ? `?${query}` : ""}`, {
+      scroll: false,
+    });
     startFilterTransition(() => {
       setLocalFilters(newFilters);
     });
@@ -130,10 +166,10 @@ const CategoryProductsContent = ({
 
   const isPending = isFilterPending || isFetching;
 
-  if (isError) {
+  if (isError || isAvailableFiltersError || isCountError) {
     return (
       <div className="flex h-64 items-center justify-center">
-        <p className="text-neutral-500">載入失敗，請重試</p>
+        <p className="text-neutral-500">商品獲取錯誤，請稍後再次嘗試。</p>
       </div>
     );
   }
@@ -141,37 +177,30 @@ const CategoryProductsContent = ({
   return (
     <>
       <div className="mb-8 flex flex-col justify-between md:flex-row md:items-center">
-        {/* 頁面標題 */}
         <PageHeader
           categorySlug={categorySlug}
-          totalCount={totalCount}
-          isPending={isPending}
+          isPending={isCountPending || isCountFetching}
           activeFilters={{
             categories: localFilters.categories,
             brands: localFilters.brands,
           }}
         />
-        {/* 上方工具欄 */}
         <Toolbar
           sortBy={localFilters.sortBy}
           onSortChange={updateSort}
           onShowMobileFilters={() => setShowMobileFilters(true)}
         />
       </div>
-
       <div className="flex gap-8">
-        {/* 左側過濾欄 - 桌面版 */}
         <DesktopFilters
           filterParams={localFilters}
           availableFilters={availableFilters}
           onClearFilters={clearFilters}
           onFilterChange={updateFilter}
-          isPending={isFetching}
+          isPending={isAvailableFiltersPending}
         />
 
-        {/* 右側商品區域 */}
         <div className="flex-1">
-          {/* 商品內容 */}
           <ProductGrid
             products={products}
             isPending={isPending && !isFetchingNextPage}
@@ -179,7 +208,6 @@ const CategoryProductsContent = ({
             categorySlug={categorySlug}
           />
 
-          {/* 無限滾動觸發器 */}
           <div ref={loadMoreRef} className="flex justify-center py-8">
             {isFetchingNextPage && (
               <div className="flex items-center gap-2">
@@ -190,7 +218,6 @@ const CategoryProductsContent = ({
         </div>
       </div>
 
-      {/* 移動端過濾器彈窗 */}
       <MobileFilters
         showMobileFilters={showMobileFilters}
         filterParams={localFilters}
@@ -199,7 +226,7 @@ const CategoryProductsContent = ({
         onClearFilters={clearFilters}
         onFilterChange={updateFilter}
         onSortChange={updateSort}
-        isPending={isFetching}
+        isPending={isAvailableFiltersPending}
       />
     </>
   );
